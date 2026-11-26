@@ -1,0 +1,2336 @@
+{
+  "levels": [
+    {
+      "t": "Sticky Note Sandi",
+      "lv": "Mudah",
+      "tz": "Akun kasir dipakai orang saat toko sudah tutup.",
+      "ed": [
+        "sandi"
+      ],
+      "story": [
+        [
+          "Mbak Sari",
+          "Akun kasir toko dipakai orang pas toko sudah tutup. Padahal sandinya cuma aku yang tahu!"
+        ],
+        [
+          "Kamu",
+          "Sandinya disimpan di mana, Mbak?"
+        ],
+        [
+          "Mbak Sari",
+          "Hmm... di <u data-v='Sticky note'>sticky note kuning</u> yang nempel di monitor. Hehe."
+        ]
+      ],
+      "db": {
+        "Login Kasir": [
+          {
+            "No": 1,
+            "Akun": "kasir_sari",
+            "Waktu": "2026-10-26 07:58",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 2,
+            "Akun": "kasir_sari",
+            "Waktu": "2026-10-26 12:10",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 3,
+            "Akun": "kasir_sari",
+            "Waktu": "2026-10-26 16:30",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 4,
+            "Akun": "kasir_sari",
+            "Waktu": "2026-10-26 21:47",
+            "Hasil": "BERHASIL"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Toko tutup jam 21:00. Kapan akun kasir dipakai setelah toko tutup? Klik waktunya.",
+          {
+            "$regex": "^2026-10-26 21:47$",
+            "$flags": ""
+          },
+          "Buka Tabel dan lihat kolom Waktu. Hanya satu login yang lewat dari jam 21:00."
+        ],
+        [
+          "Selidiki",
+          "Menurut cerita Mbak Sari, di mana sandi itu disimpan? Klik jawabannya.",
+          {
+            "$regex": "^Sticky note$",
+            "$flags": "i"
+          },
+          "Baca lagi pesan Mbak Sari di jendela Pesan. Klik teks yang bergaris bawah."
+        ],
+        [
+          "Telusuri",
+          "Cari tahu di Browser: bagaimana cara menyimpan sandi yang lebih aman? Klik jawabannya.",
+          {
+            "$regex": "^Pengelola sandi$",
+            "$flags": "i"
+          },
+          "Di Browser cari: simpan sandi aman."
+        ]
+      ],
+      "web": [
+        [
+          "sandi.id/aman",
+          "Cara Menyimpan Sandi dengan Aman",
+          "simpan sandi aman cara kata password",
+          "<h3>Simpan Sandi dengan Aman</h3><p>Cara berisiko: <u data-v='Kertas tempel'>menempel sandi di meja atau monitor</u>.</p><p>Cara yang disarankan: <u data-v='Pengelola sandi'>pakai pengelola sandi (password manager)</u>.</p>"
+        ],
+        [
+          "warung.id/menu",
+          "Menu Warung Mbak Sari",
+          "menu warung makan nasi",
+          "<h3>Menu</h3><p>Nasi goreng, es teh, dan gorengan.</p>"
+        ]
+      ],
+      "cul": [
+        "PELAKU",
+        "Orang iseng",
+        "#ff7a6b",
+        "gb"
+      ],
+      "end": "Orang iseng membaca sandi dari sticky note di monitor lalu login setelah toko tutup. Jangan tempel sandi di tempat yang bisa dilihat orang, ya!"
+    },
+    {
+      "t": "SMS Paket Palsu",
+      "lv": "Mudah",
+      "tz": "SMS minta biaya untuk paket yang tidak kamu pesan.",
+      "ed": [
+        "phish",
+        "dom"
+      ],
+      "vals": [
+        "Dikirim",
+        "Selesai"
+      ],
+      "story": [
+        [
+          "JNE-Info",
+          "Paket Anda tertahan di gudang. Bayar biaya <u data-v='Rp 15.000'>Rp 15.000</u> di: <u data-v='jne-cek-paket.xyz/bayar'>jne-cek-paket.xyz/bayar</u>"
+        ],
+        [
+          "Kamu",
+          "Aku nggak merasa belanja apa-apa belakangan ini."
+        ],
+        [
+          "Adik",
+          "Kak, jangan langsung klik. Cek dulu ya."
+        ]
+      ],
+      "db": {
+        "Pesanan Saya": [
+          {
+            "No": 1,
+            "Toko": "Toko Buku Maju",
+            "Barang": "Novel",
+            "Kurir": "JNE",
+            "Status": "Selesai"
+          },
+          {
+            "No": 2,
+            "Toko": "Gadget Ria",
+            "Barang": "Kabel",
+            "Kurir": "JNT",
+            "Status": "Selesai"
+          },
+          {
+            "No": 3,
+            "Toko": "Kedai Kopi",
+            "Barang": "Biji kopi",
+            "Kurir": "Ambil sendiri",
+            "Status": "Selesai"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Baca SMS di jendela Pesan. Klik alamat tautan yang janggal.",
+          {
+            "$regex": "^jne-cek-paket\\.xyz\\/bayar$",
+            "$flags": "i"
+          },
+          "Cari alamat web di SMS. Kurir resmi memakai alamat seperti jne.co.id."
+        ],
+        [
+          "Selidiki",
+          "Periksa domain itu di Browser. Kapan didaftarkan? Klik tanggalnya.",
+          {
+            "$regex": "^2026-10-19$",
+            "$flags": ""
+          },
+          "Di Browser cari: cek domain jne cek paket."
+        ],
+        [
+          "Hitung",
+          "Adakah pesanan berstatus Dikirim di Pesanan Saya?",
+          {
+            "$regex": "^0$",
+            "$flags": ""
+          },
+          "Di Tabel: Status sama dengan Dikirim. Jumlah 0 berarti tidak ada paket yang sedang dikirim."
+        ]
+      ],
+      "web": [
+        [
+          "cekdomain.id/jne-cek-paket.xyz",
+          "Cek Domain: jne-cek-paket.xyz",
+          "cek domain jne cek paket xyz whois terdaftar",
+          "<h3>jne-cek-paket.xyz</h3><p>Terdaftar: <u data-v='2026-10-19'>19 Oktober 2026</u> (3 hari lalu)</p><p>Pemilik: disembunyikan</p><p>Catatan: meniru nama kurir, banyak dilaporkan sebagai penipuan.</p>"
+        ],
+        [
+          "jne.co.id",
+          "JNE (situs resmi)",
+          "jne resmi kurir situs",
+          "<h3>jne.co.id</h3><p>Situs resmi, terdaftar sejak 1990.</p>"
+        ],
+        [
+          "promo.toko.id",
+          "Promo Akhir Pekan",
+          "promo diskon toko",
+          "<h3>Diskon 50%</h3><p>Khusus akhir pekan.</p>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Pengirim SMS",
+        "#ff7a6b",
+        "c"
+      ],
+      "end": "SMS itu penipuan: tautannya palsu dan kamu memang tidak punya paket yang sedang dikirim. Jangan klik, hapus saja, dan cek resi hanya lewat aplikasi resmi."
+    },
+    {
+      "t": "Telepon CS Palsu",
+      "lv": "Mudah",
+      "tz": "Penelepon mengaku dari bank dan minta kode OTP.",
+      "ed": [
+        "otp"
+      ],
+      "vals": [
+        "Mengaku dari bank",
+        "Kontak tersimpan",
+        "+62 811-0000-123",
+        "BankKu"
+      ],
+      "story": [
+        [
+          "+62 811-0000-123",
+          "Halo, kami CS bank. Ada transaksi mencurigakan. Mohon sebutkan kode OTP yang baru dikirim."
+        ],
+        [
+          "Kamu",
+          "OTP? Aku memang baru dapat kode di SMS tadi."
+        ],
+        [
+          "Ibu",
+          "Nak, jangan kasih kode itu ke siapa pun ya!"
+        ]
+      ],
+      "db": {
+        "Log Telepon": [
+          {
+            "No": 1,
+            "Nomor": "Ibu",
+            "Waktu": "2026-10-20 08:00",
+            "Durasi": 3,
+            "Catatan": "Kontak tersimpan"
+          },
+          {
+            "No": 2,
+            "Nomor": "+62 811-0000-123",
+            "Waktu": "2026-10-20 09:10",
+            "Durasi": 2,
+            "Catatan": "Mengaku dari bank"
+          },
+          {
+            "No": 3,
+            "Nomor": "Ojek Pak Dani",
+            "Waktu": "2026-10-20 09:25",
+            "Durasi": 1,
+            "Catatan": "Kontak tersimpan"
+          },
+          {
+            "No": 4,
+            "Nomor": "+62 811-0000-123",
+            "Waktu": "2026-10-20 09:31",
+            "Durasi": 6,
+            "Catatan": "Mengaku dari bank"
+          },
+          {
+            "No": 5,
+            "Nomor": "+62 811-0000-123",
+            "Waktu": "2026-10-20 09:45",
+            "Durasi": 4,
+            "Catatan": "Mengaku dari bank"
+          }
+        ],
+        "SMS Masuk": [
+          {
+            "No": 1,
+            "Pengirim": "BankKu",
+            "Isi": "Kode OTP 482913. JANGAN BERIKAN KE SIAPA PUN.",
+            "Waktu": "2026-10-20 09:32"
+          },
+          {
+            "No": 2,
+            "Pengirim": "Operator",
+            "Isi": "Pulsa Anda tersisa Rp 12.000",
+            "Waktu": "2026-10-20 08:10"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Penelepon yang mengaku dari bank itu nomornya berapa? Klik nomornya.",
+          {
+            "$regex": "^\\+62 811-0000-123$",
+            "$flags": ""
+          },
+          "Di Tabel pilih Log Telepon, saring Catatan sama dengan Mengaku dari bank."
+        ],
+        [
+          "Hitung",
+          "Berapa kali nomor itu menelepon?",
+          {
+            "$regex": "^3$",
+            "$flags": ""
+          },
+          "Saring Log Telepon: Nomor sama dengan nomor tadi. Lihat jumlahnya, lalu klik 📌 Pakai jumlah ini."
+        ],
+        [
+          "Selidiki",
+          "Cari di Browser: apa aturan bank soal OTP? Klik jawabannya.",
+          {
+            "$regex": "^TIDAK PERNAH$",
+            "$flags": "i"
+          },
+          "Di Browser cari: aturan bank OTP."
+        ]
+      ],
+      "web": [
+        [
+          "bankku.co.id/keamanan",
+          "Keamanan Nasabah BankKu",
+          "bank otp aturan keamanan nasabah telepon pin",
+          "<h3>Keamanan Nasabah</h3><p>Pihak bank <u data-v='TIDAK PERNAH'>TIDAK PERNAH</u> meminta OTP, PIN, atau password lewat telepon, SMS, atau chat.</p><p>Hubungi call center resmi di nomor kartu.</p>"
+        ],
+        [
+          "berita.kampus.id",
+          "Berita Kampus",
+          "berita kampus wisuda",
+          "<h3>Wisuda Oktober</h3>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Penelepon palsu",
+        "#ff7a6b",
+        "g"
+      ],
+      "end": "Penelepon itu penipu rekayasa sosial: menelepon 3 kali dan menekan agar kamu menyebut OTP. OTP tidak boleh diberikan ke siapa pun, termasuk yang mengaku dari bank."
+    },
+    {
+      "t": "Link WA dari Teman",
+      "lv": "Mudah",
+      "tz": "Teman tiba-tiba kirim link kuota gratis.",
+      "ed": [
+        "mfa",
+        "phish"
+      ],
+      "vals": [
+        "Perangkat Baru",
+        "HP Dinda",
+        "Dinda"
+      ],
+      "story": [
+        [
+          "Dinda (teman)",
+          "Gaes klik link ini, kuota 50GB gratis! kuota-gratis-wa.xyz/dapat"
+        ],
+        [
+          "Kamu",
+          "Kok tumben Dinda kirim begini jam 2 pagi?"
+        ],
+        [
+          "Dinda (telepon)",
+          "Aku nggak kirim apa-apa! HP-ku mungkin dibobol."
+        ]
+      ],
+      "db": {
+        "Riwayat Grup WA": [
+          {
+            "No": 1,
+            "Pengirim": "Dinda",
+            "Pesan": "Besok kumpul jam 10 ya",
+            "Waktu": "2026-10-21 18:30",
+            "Perangkat": "HP Dinda"
+          },
+          {
+            "No": 2,
+            "Pengirim": "Rani",
+            "Pesan": "Oke siap",
+            "Waktu": "2026-10-21 18:32",
+            "Perangkat": "HP Rani"
+          },
+          {
+            "No": 3,
+            "Pengirim": "Dinda",
+            "Pesan": "Makasih ya semua",
+            "Waktu": "2026-10-21 20:05",
+            "Perangkat": "HP Dinda"
+          },
+          {
+            "No": 4,
+            "Pengirim": "Dinda",
+            "Pesan": "Gaes klik, kuota 50GB gratis! kuota-gratis-wa.xyz/dapat",
+            "Waktu": "2026-10-22 02:14",
+            "Perangkat": "Perangkat Baru"
+          },
+          {
+            "No": 5,
+            "Pengirim": "Dinda",
+            "Pesan": "Cepet klik sebelum habis",
+            "Waktu": "2026-10-22 02:15",
+            "Perangkat": "Perangkat Baru"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Link tadi dikirim dari perangkat apa? Klik nama perangkatnya.",
+          {
+            "$regex": "^Perangkat Baru$",
+            "$flags": "i"
+          },
+          "Di Tabel saring: Pengirim sama dengan Dinda, lalu Perangkat bukan HP Dinda."
+        ],
+        [
+          "Selidiki",
+          "Buka link itu di Browser. Apa yang diminta halaman itu? Klik permintaannya.",
+          {
+            "$regex": "^kode verifikasi 6 digit$",
+            "$flags": "i"
+          },
+          "Di Browser cari: kuota gratis wa."
+        ],
+        [
+          "Pulihkan",
+          "Dinda ingin akunnya kembali. Cari panduannya di Browser, lalu klik langkah yang benar.",
+          {
+            "$regex": "^daftar ulang WhatsApp dengan nomor sendiri$",
+            "$flags": "i"
+          },
+          "Di Browser cari: panduan akun whatsapp diretas."
+        ]
+      ],
+      "web": [
+        [
+          "kuota-gratis-wa.xyz",
+          "Klaim Kuota 50GB Gratis",
+          "kuota gratis wa klaim 50gb link",
+          "<h3>Klaim Kuota 50GB</h3><p>Masukkan nomor WA dan <u data-v='kode verifikasi 6 digit'>kode verifikasi 6 digit</u> yang dikirim ke SMS-mu.</p>"
+        ],
+        [
+          "help.wa-info.id/akun-diretas",
+          "Panduan: Akun WhatsApp Diambil Alih",
+          "panduan akun whatsapp diretas diambil alih wa",
+          "<h3>Akun WA Diambil Alih</h3><ol><li><u data-v='daftar ulang WhatsApp dengan nomor sendiri'>daftar ulang WhatsApp dengan nomor sendiri</u></li><li><u data-v='tunggu sampai penyerang bosan'>tunggu sampai penyerang bosan</u></li><li><u data-v='kirim kode verifikasi ke teman'>kirim kode verifikasi ke teman</u></li></ol><p>Lalu aktifkan verifikasi dua langkah.</p>"
+        ]
+      ],
+      "cul": [
+        "PEMBAJAK AKUN",
+        "Pembajak WhatsApp",
+        "#8f9bff",
+        "gc"
+      ],
+      "end": "Akun Dinda diambil alih lewat kode verifikasi yang dipancing. Kalau teman tiba-tiba mengirim link aneh, konfirmasi lewat telepon sebelum klik."
+    },
+    {
+      "t": "WiFi Kafe Palsu",
+      "lv": "Sedang",
+      "tz": "WiFi gratis dengan nama mirip kafe.",
+      "ed": [
+        "sql",
+        "wifi",
+        "sql2"
+      ],
+      "vals": [
+        "Terbuka",
+        "WPA2",
+        "KopiSenja%",
+        "Luar Negeri",
+        "Indonesia"
+      ],
+      "story": [
+        [
+          "Kamu",
+          "Ada 3 WiFi di kafe: KopiSenja, KopiSenja_FREE, KopiSenja-Guest. Pilih yang mana ya?"
+        ],
+        [
+          "Barista",
+          "WiFi kami KopiSenja, sandinya ada di struk."
+        ],
+        [
+          "Sistem",
+          "Peringatan: ada jaringan di sekitar tanpa enkripsi."
+        ]
+      ],
+      "db": {
+        "Daftar WiFi": [
+          {
+            "Nama": "KopiSenja",
+            "Keamanan": "WPA2",
+            "Sinyal": 70,
+            "Sandi": "Ya"
+          },
+          {
+            "Nama": "KopiSenja_FREE",
+            "Keamanan": "Terbuka",
+            "Sinyal": 95,
+            "Sandi": "Tidak"
+          },
+          {
+            "Nama": "KopiSenja-Guest",
+            "Keamanan": "WPA2",
+            "Sinyal": 40,
+            "Sandi": "Ya"
+          },
+          {
+            "Nama": "Warung Sebelah",
+            "Keamanan": "WPA2",
+            "Sinyal": 30,
+            "Sandi": "Ya"
+          },
+          {
+            "Nama": "Free WiFi",
+            "Keamanan": "Terbuka",
+            "Sinyal": 88,
+            "Sandi": "Tidak"
+          }
+        ],
+        "Login Akun": [
+          {
+            "No": 1,
+            "Akun": "ig_kamu",
+            "Waktu": "2026-10-22 14:55",
+            "Lokasi": "Indonesia"
+          },
+          {
+            "No": 2,
+            "Akun": "ig_kamu",
+            "Waktu": "2026-10-22 15:20",
+            "Lokasi": "Luar Negeri"
+          },
+          {
+            "No": 3,
+            "Akun": "email_kamu",
+            "Waktu": "2026-10-22 15:22",
+            "Lokasi": "Luar Negeri"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Hitung",
+          "Ada berapa WiFi yang Keamanannya Terbuka?",
+          {
+            "$regex": "^2$",
+            "$flags": ""
+          },
+          "SELECT * FROM Daftar WiFi WHERE Keamanan = 'Terbuka'"
+        ],
+        [
+          "Cari",
+          "Dari WiFi terbuka itu, mana yang meniru nama kafe? Klik namanya.",
+          {
+            "$regex": "^KopiSenja_FREE$",
+            "$flags": "i"
+          },
+          "SELECT * FROM Daftar WiFi WHERE Keamanan = 'Terbuka' AND Nama LIKE 'KopiSenja%'"
+        ],
+        [
+          "Telusuri",
+          "Setelah itu akunmu dimasuki dari luar negeri? Klik akun yang kena paling dulu.",
+          {
+            "$regex": "^ig_kamu$",
+            "$flags": "i"
+          },
+          "SELECT * FROM Login Akun WHERE Lokasi <> 'Indonesia'. Lihat waktu paling awal."
+        ]
+      ],
+      "web": [
+        [
+          "info.aman.id/wifi-publik",
+          "Risiko WiFi Publik",
+          "risiko wifi publik terbuka kafe",
+          "<h3>Risiko WiFi Publik</h3><p>WiFi terbuka dapat dibuat penipu dengan nama mirip kafe. Datamu bisa disadap.</p>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Pemilik WiFi palsu",
+        "#ffd95a",
+        "g"
+      ],
+      "end": "KopiSenja_FREE adalah WiFi kembaran: terbuka, sinyal kuat, nama mirip. Setelah tersambung, akun Instagram dan emailmu dimasuki dari luar negeri."
+    },
+    {
+      "t": "QRIS Kedai Kopi",
+      "lv": "Sedang",
+      "tz": "Uang pelanggan masuk ke merchant yang tidak dikenal.",
+      "ed": [
+        "qris",
+        "sql2"
+      ],
+      "vals": [
+        "Kedai Kopi Senja",
+        "TOKO ABC99",
+        "Meja 3"
+      ],
+      "story": [
+        [
+          "Mbak Sari (pemilik)",
+          "Uang masuk ke rekening kok kurang ya? Padahal kedai ramai."
+        ],
+        [
+          "Kasir",
+          "Ada stiker QRIS di meja 3, kayaknya baru ditempel."
+        ],
+        [
+          "Sistem",
+          "Peringatan: beberapa transaksi masuk ke merchant tak dikenal."
+        ]
+      ],
+      "db": {
+        "Transaksi QRIS": [
+          {
+            "No": 1,
+            "Meja": "Meja 1",
+            "Nominal": 25000,
+            "Merchant": "Kedai Kopi Senja",
+            "Waktu": "2026-10-22 10:05"
+          },
+          {
+            "No": 2,
+            "Meja": "Meja 3",
+            "Nominal": 40000,
+            "Merchant": "TOKO ABC99",
+            "Waktu": "2026-10-22 10:20"
+          },
+          {
+            "No": 3,
+            "Meja": "Meja 2",
+            "Nominal": 18000,
+            "Merchant": "Kedai Kopi Senja",
+            "Waktu": "2026-10-22 10:31"
+          },
+          {
+            "No": 4,
+            "Meja": "Meja 3",
+            "Nominal": 32000,
+            "Merchant": "TOKO ABC99",
+            "Waktu": "2026-10-22 11:02"
+          },
+          {
+            "No": 5,
+            "Meja": "Meja 4",
+            "Nominal": 27000,
+            "Merchant": "Kedai Kopi Senja",
+            "Waktu": "2026-10-22 11:15"
+          },
+          {
+            "No": 6,
+            "Meja": "Meja 3",
+            "Nominal": 55000,
+            "Merchant": "TOKO ABC99",
+            "Waktu": "2026-10-22 12:40"
+          },
+          {
+            "No": 7,
+            "Meja": "Meja 5",
+            "Nominal": 21000,
+            "Merchant": "Kedai Kopi Senja",
+            "Waktu": "2026-10-22 12:55"
+          },
+          {
+            "No": 8,
+            "Meja": "Meja 3",
+            "Nominal": 47000,
+            "Merchant": "TOKO ABC99",
+            "Waktu": "2026-10-22 13:20"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Hitung",
+          "Berapa transaksi yang masuk ke merchant selain Kedai Kopi Senja?",
+          {
+            "$regex": "^4$",
+            "$flags": ""
+          },
+          "SELECT COUNT(*) FROM Transaksi QRIS WHERE Merchant <> 'Kedai Kopi Senja'"
+        ],
+        [
+          "Lacak",
+          "Transaksi ke merchant asing berasal dari meja mana? Klik mejanya.",
+          {
+            "$regex": "^Meja 3$",
+            "$flags": "i"
+          },
+          "SELECT * FROM Transaksi QRIS WHERE Merchant = 'TOKO ABC99'. Lihat kolom Meja."
+        ],
+        [
+          "Selidiki",
+          "Cari di Browser: apa yang diperiksa sebelum membayar QRIS? Klik jawabannya.",
+          {
+            "$regex": "^nama merchant$",
+            "$flags": "i"
+          },
+          "Di Browser cari: cara cek qris asli."
+        ]
+      ],
+      "web": [
+        [
+          "info.aman.id/cek-qris",
+          "Cara Cek QRIS Asli",
+          "cek qris asli merchant bayar",
+          "<h3>Cek QRIS Asli</h3><p>Sebelum bayar, periksa <u data-v='nama merchant'>nama merchant</u> yang muncul di layar. Jika berbeda dari kedai, jangan bayar.</p>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Penempel stiker",
+        "#a9b3ff",
+        "c"
+      ],
+      "end": "Ada stiker QRIS palsu yang ditempel di Meja 3. Empat pembayaran masuk ke rekening penipu. Periksa stiker QRIS secara berkala dan biasakan membaca nama merchant."
+    },
+    {
+      "t": "APK Premium Gratis",
+      "lv": "Sedang",
+      "tz": "Aplikasi musik premium gratis dari grup chat.",
+      "ed": [
+        "apk",
+        "mfa"
+      ],
+      "vals": [
+        "MusikPro",
+        "PemutarResmi",
+        "Tidak",
+        "Ya",
+        "Akses SMS"
+      ],
+      "story": [
+        [
+          "Grup Telegram",
+          "Unduh MusikPro Premium GRATIS (APK): musikpro-apk.xyz"
+        ],
+        [
+          "Kamu",
+          "Wah mau coba. Tapi ini bukan dari toko aplikasi ya?"
+        ],
+        [
+          "Sistem",
+          "Aplikasi tidak dikenal meminta banyak izin."
+        ]
+      ],
+      "db": {
+        "Izin Aplikasi": [
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Akses SMS",
+            "Wajar": "Tidak"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Baca Kontak",
+            "Wajar": "Tidak"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Aksesibilitas",
+            "Wajar": "Tidak"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Tampil di atas aplikasi lain",
+            "Wajar": "Tidak"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Mikrofon",
+            "Wajar": "Tidak"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Penyimpanan",
+            "Wajar": "Ya"
+          },
+          {
+            "Aplikasi": "MusikPro",
+            "Izin": "Internet",
+            "Wajar": "Ya"
+          },
+          {
+            "Aplikasi": "PemutarResmi",
+            "Izin": "Penyimpanan",
+            "Wajar": "Ya"
+          },
+          {
+            "Aplikasi": "PemutarResmi",
+            "Izin": "Internet",
+            "Wajar": "Ya"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Hitung",
+          "Berapa izin MusikPro yang tidak wajar untuk pemutar musik?",
+          {
+            "$regex": "^5$",
+            "$flags": ""
+          },
+          "SELECT * FROM Izin Aplikasi WHERE Aplikasi = 'MusikPro' AND Wajar = 'Tidak'"
+        ],
+        [
+          "Cari",
+          "Izin mana yang bisa membaca kode OTP di SMS-mu? Klik izinnya.",
+          {
+            "$regex": "^Akses SMS$",
+            "$flags": "i"
+          },
+          "Cari izin yang berhubungan dengan SMS."
+        ],
+        [
+          "Selidiki",
+          "Cari di Browser: dari mana aplikasi sebaiknya diunduh? Klik jawabannya.",
+          {
+            "$regex": "^toko aplikasi resmi$",
+            "$flags": "i"
+          },
+          "Di Browser cari: keamanan aplikasi apk."
+        ]
+      ],
+      "web": [
+        [
+          "info.aman.id/apk",
+          "Keamanan Aplikasi (APK)",
+          "keamanan aplikasi apk unduh",
+          "<h3>Keamanan Aplikasi</h3><p>Unduh hanya dari <u data-v='toko aplikasi resmi'>toko aplikasi resmi</u>. Hindari file APK dari tautan atau grup.</p>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Pembuat APK",
+        "#38bdf8",
+        "b"
+      ],
+      "end": "APK premium gratis adalah aplikasi jebakan: meminta akses SMS dan aksesibilitas untuk mencuri OTP dan mengendalikan HP. Unduh hanya dari toko resmi."
+    },
+    {
+      "t": "Toko Online Palsu",
+      "lv": "Sulit",
+      "tz": "HP flagship cuma Rp 499.000, ulasannya bagus semua.",
+      "ed": [
+        "toko",
+        "dom"
+      ],
+      "vals": [
+        "0812-5521-0001",
+        "0877-1111-9090",
+        5,
+        1,
+        0
+      ],
+      "story": [
+        [
+          "Iklan",
+          "HP flagship cuma Rp 499.000! Stok terbatas, transfer ke rekening toko sekarang."
+        ],
+        [
+          "Kamu",
+          "Murah banget, ulasannya bagus semua lagi."
+        ],
+        [
+          "Sistem",
+          "Peringatan: banyak laporan penipuan dari toko ini."
+        ]
+      ],
+      "db": {
+        "Ulasan Toko": [
+          {
+            "No": 1,
+            "Pengulas": "user_a1",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:01"
+          },
+          {
+            "No": 2,
+            "Pengulas": "user_a2",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:01"
+          },
+          {
+            "No": 3,
+            "Pengulas": "user_a3",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:02"
+          },
+          {
+            "No": 4,
+            "Pengulas": "user_a4",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:02"
+          },
+          {
+            "No": 5,
+            "Pengulas": "user_a5",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:02"
+          },
+          {
+            "No": 6,
+            "Pengulas": "user_a6",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:03"
+          },
+          {
+            "No": 7,
+            "Pengulas": "user_a7",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:03"
+          },
+          {
+            "No": 8,
+            "Pengulas": "user_a8",
+            "Bintang": 5,
+            "Umur Akun": 0,
+            "Waktu": "2026-10-21 10:03"
+          },
+          {
+            "No": 9,
+            "Pengulas": "sari_m",
+            "Bintang": 1,
+            "Umur Akun": 420,
+            "Waktu": "2026-10-22 09:15"
+          },
+          {
+            "No": 10,
+            "Pengulas": "joko_w",
+            "Bintang": 1,
+            "Umur Akun": 380,
+            "Waktu": "2026-10-22 11:40"
+          }
+        ],
+        "Laporan Korban": [
+          {
+            "No": 1,
+            "Platform": "WhatsApp",
+            "Kerugian": 499000,
+            "Rekening": "0812-5521-0001"
+          },
+          {
+            "No": 2,
+            "Platform": "Instagram",
+            "Kerugian": 499000,
+            "Rekening": "0812-5521-0001"
+          },
+          {
+            "No": 3,
+            "Platform": "Facebook",
+            "Kerugian": 998000,
+            "Rekening": "0812-5521-0001"
+          },
+          {
+            "No": 4,
+            "Platform": "WhatsApp",
+            "Kerugian": 499000,
+            "Rekening": "0812-5521-0001"
+          },
+          {
+            "No": 5,
+            "Platform": "Telegram",
+            "Kerugian": 499000,
+            "Rekening": "0812-5521-0001"
+          },
+          {
+            "No": 6,
+            "Platform": "WhatsApp",
+            "Kerugian": 250000,
+            "Rekening": "0877-1111-9090"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Hitung",
+          "Berapa ulasan bintang 5 dari akun yang baru dibuat (umur 0 hari)?",
+          {
+            "$regex": "^8$",
+            "$flags": ""
+          },
+          "SELECT COUNT(*) FROM Ulasan Toko WHERE Bintang = 5 AND Umur Akun = 0"
+        ],
+        [
+          "Selidiki",
+          "Cek toko itu di Browser. Rekening tujuan atas nama siapa? Klik namanya.",
+          {
+            "$regex": "^Budi Prasetyo$",
+            "$flags": "i"
+          },
+          "Di Browser cari: hp murah gila."
+        ],
+        [
+          "Telusuri",
+          "Berapa laporan korban yang memakai rekening 0812-5521-0001?",
+          {
+            "$regex": "^5$",
+            "$flags": ""
+          },
+          "SELECT * FROM Laporan Korban WHERE Rekening = '0812-5521-0001'"
+        ]
+      ],
+      "web": [
+        [
+          "hp-murah-gila.shop",
+          "HP Murah Gila Shop",
+          "hp murah gila shop toko diskon rekening",
+          "<h3>hp-murah-gila.shop</h3><p>Terdaftar: 5 hari lalu</p><p>Pembayaran hanya ke rekening pribadi 0812-5521-0001 a.n. <u data-v='Budi Prasetyo'>Budi Prasetyo</u></p><p>Garansi: <u data-v='Garansi seumur hidup'>Garansi seumur hidup</u></p>"
+        ]
+      ],
+      "cul": [
+        "PENIPU",
+        "Pemilik toko palsu",
+        "#ff7a6b",
+        "gb"
+      ],
+      "end": "Toko palsu: ulasan bintang 5 muncul serentak dari akun baru, pembayaran ke rekening pribadi, dan 5 korban lain memakai rekening yang sama. Jangan transfer ke rekening pribadi dan cek umur domain."
+    },
+    {
+      "t": "Email Palsu",
+      "lv": "Sulit",
+      "tz": "Pegawai dikirimi email 'gaji ditahan'.",
+      "ed": [
+        "phish",
+        "dom",
+        "mfa"
+      ],
+      "vals": [
+        "kampus-verif.xyz",
+        "kampus.ac.id",
+        "Rusia",
+        "Indonesia",
+        "bu_ratna"
+      ],
+      "story": [
+        [
+          "Admin IT",
+          "Beberapa pegawai melapor menerima email 'SEGERA verifikasi akun'. Ada yang sudah mengeklik."
+        ],
+        [
+          "Bu Ratna",
+          "Akun saya tiba-tiba minta login ulang. Aneh sekali."
+        ],
+        [
+          "Sistem",
+          "PERINGATAN 09:40: login berhasil dari luar negeri."
+        ]
+      ],
+      "db": {
+        "Email Masuk": [
+          {
+            "No": 1,
+            "Pengirim": "Biro Keuangan",
+            "Domain Pengirim": "kampus.ac.id",
+            "Subjek": "Slip honor Agustus",
+            "Waktu": "2026-10-01 08:10"
+          },
+          {
+            "No": 2,
+            "Pengirim": "Admin IT",
+            "Domain Pengirim": "kampus.ac.id",
+            "Subjek": "Jadwal pemeliharaan server",
+            "Waktu": "2026-10-01 08:40"
+          },
+          {
+            "No": 3,
+            "Pengirim": "Layanan Kampus",
+            "Domain Pengirim": "kampus-verif.xyz",
+            "Subjek": "SEGERA verifikasi akun atau diblokir",
+            "Waktu": "2026-10-01 09:02"
+          },
+          {
+            "No": 4,
+            "Pengirim": "Perpustakaan",
+            "Domain Pengirim": "kampus.ac.id",
+            "Subjek": "Buku jatuh tempo",
+            "Waktu": "2026-10-01 09:15"
+          },
+          {
+            "No": 5,
+            "Pengirim": "Layanan Kampus",
+            "Domain Pengirim": "kampus-verif.xyz",
+            "Subjek": "SEGERA: gaji akan ditahan",
+            "Waktu": "2026-10-01 09:20"
+          }
+        ],
+        "Catatan Klik": [
+          {
+            "No": 1,
+            "Akun": "bu_ratna",
+            "Waktu": "2026-10-01 09:05",
+            "Tujuan Tautan": "kampus-verif.xyz"
+          },
+          {
+            "No": 2,
+            "Akun": "pak_anto",
+            "Waktu": "2026-10-01 09:07",
+            "Tujuan Tautan": "kampus-verif.xyz"
+          },
+          {
+            "No": 3,
+            "Akun": "andi",
+            "Waktu": "2026-10-01 09:12",
+            "Tujuan Tautan": "kampus.ac.id"
+          },
+          {
+            "No": 4,
+            "Akun": "siti_admin",
+            "Waktu": "2026-10-01 09:25",
+            "Tujuan Tautan": "kampus-verif.xyz"
+          },
+          {
+            "No": 5,
+            "Akun": "dewi_it",
+            "Waktu": "2026-10-01 09:30",
+            "Tujuan Tautan": "kampus-verif.xyz"
+          },
+          {
+            "No": 6,
+            "Akun": "budi",
+            "Waktu": "2026-10-01 09:40",
+            "Tujuan Tautan": "kampus.ac.id"
+          }
+        ],
+        "Login Baru": [
+          {
+            "No": 1,
+            "Akun": "andi",
+            "Waktu": "2026-10-01 08:50",
+            "Negara": "Indonesia",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 2,
+            "Akun": "pak_anto",
+            "Waktu": "2026-10-01 09:50",
+            "Negara": "Indonesia",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 3,
+            "Akun": "bu_ratna",
+            "Waktu": "2026-10-01 09:40",
+            "Negara": "Rusia",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 4,
+            "Akun": "siti_admin",
+            "Waktu": "2026-10-01 10:05",
+            "Negara": "Indonesia",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 5,
+            "Akun": "dewi_it",
+            "Waktu": "2026-10-01 10:10",
+            "Negara": "Indonesia",
+            "Hasil": "BERHASIL"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Email palsu itu dikirim dari domain apa? Klik domainnya di tabel.",
+          {
+            "$regex": "^kampus-verif\\.xyz$",
+            "$flags": "i"
+          },
+          "Di Email Masuk, saring: Domain Pengirim bukan kampus.ac.id."
+        ],
+        [
+          "Selidiki",
+          "Buka Browser dan periksa domain palsu itu. Kapan domain itu didaftarkan? Klik tanggalnya.",
+          {
+            "$regex": "^2026-09-29$",
+            "$flags": ""
+          },
+          "Di Browser cari: cek domain kampus-verif.xyz."
+        ],
+        [
+          "Hitung",
+          "Berapa orang mengeklik tautan ke domain palsu itu? Pakai 📌 jumlah.",
+          {
+            "$regex": "^4$",
+            "$flags": ""
+          },
+          "Di Catatan Klik, saring: Tujuan Tautan sama dengan kampus-verif.xyz."
+        ],
+        [
+          "Tangkap",
+          "Akun mana yang dibobol dari luar negeri? Klik nama akunnya.",
+          {
+            "$regex": "^bu_ratna$",
+            "$flags": "i"
+          },
+          "Di Login Baru, saring: Negara bukan Indonesia."
+        ],
+        [
+          "Saksi",
+          "Buka CCTV Ruang Admin. Sosok mana yang curiga lalu berjalan melapor ke Admin IT? Klik sosoknya.",
+          {
+            "$regex": "^Sosok D$",
+            "$flags": "i"
+          },
+          "Putar CCTV dan perhatikan siapa yang berdiri lalu berjalan ke meja Admin IT."
+        ],
+        [
+          "Cocokkan",
+          "Lihat ciri sosoknya di Foto TKP, lalu cocokkan dengan foto staf. Akun siapa dia? Klik namanya.",
+          {
+            "$regex": "^andi$",
+            "$flags": "i"
+          },
+          "Cari di Browser: foto staf. Bandingkan warna baju dan kacamata."
+        ]
+      ],
+      "web": [
+        [
+          "cekdomain.id/kampus-verif.xyz",
+          "Cek Domain: kampus-verif.xyz",
+          "cek domain kampus-verif whois pemilik terdaftar xyz",
+          "<h3>kampus-verif.xyz</h3><p>Terdaftar: <u data-v='2026-09-29'>29 September 2026</u> (2 hari lalu)</p><p>Pemilik: disembunyikan</p><p>Server: luar negeri</p><p>Catatan: domain baru yang meniru situs resmi sering dipakai untuk phishing.</p>"
+        ],
+        [
+          "hr.kampus.id/foto-staf",
+          "Foto Staf",
+          "foto staf pegawai wajah ciri orang akun",
+          "<h3>Foto Staf</h3><p>Nama akun di bawah tiap foto.</p><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"bu_ratna\">bu_ratna</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#8f9bff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><path d=\"M-10 -16Q0 -28 10 -16Z\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect x=\"-3\" y=\"-17\" width=\"15\" height=\"3\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.2\"/></svg><br><u data-v=\"pak_anto\">pak_anto</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect x=\"6\" y=\"0\" width=\"9\" height=\"21\" rx=\"3\" fill=\"#1b6fd8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ffd95a\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/></svg><br><u data-v=\"siti_admin\">siti_admin</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#38bdf8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"andi\">andi</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><path d=\"M-10 -16Q0 -28 10 -16Z\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect x=\"-3\" y=\"-17\" width=\"15\" height=\"3\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.2\"/></svg><br><u data-v=\"dewi_it\">dewi_it</u></span>"
+        ],
+        [
+          "kampus.ac.id",
+          "Situs Resmi Kampus",
+          "kampus resmi domain ac.id",
+          "<h3>kampus.ac.id</h3><p>Situs resmi, terdaftar sejak 2005.</p>"
+        ],
+        [
+          "promo.toko.id",
+          "Promo Belanja Akhir Pekan",
+          "promo diskon belanja toko",
+          "<h3>Diskon 50%</h3><p>Khusus akhir pekan.</p>"
+        ]
+      ],
+      "sc": {
+        "t0": "09:02:00",
+        "dur": 18,
+        "bg": "<rect width=\"600\" height=\"340\" fill=\"#dfe8ff\"/><rect width=\"600\" height=\"110\" fill=\"#c3d2fb\"/><rect y=\"255\" width=\"600\" height=\"85\" fill=\"#e9d9b8\"/><text x=\"12\" y=\"22\" font-size=\"12\" fill=\"#3d4bb8\">TKP · Ruang Admin</text><rect x=\"500\" y=\"118\" width=\"90\" height=\"56\" rx=\"4\" fill=\"#3d4bb8\" stroke=\"#0d0f24\" stroke-width=\"2\"/><text x=\"545\" y=\"150\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#fff\">ADMIN IT</text><rect x=\"74\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"64\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"100\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\"></text><rect x=\"189\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"179\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"215\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\"></text><rect x=\"304\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"294\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"330\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\"></text><rect x=\"419\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"409\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"445\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\"></text>",
+        "cap": "Ruang Admin · pukul 09:05. Email \"SEGERA verifikasi akun\" baru saja masuk.",
+        "ch": [
+          [
+            "Sosok A",
+            "#ff7a6b",
+            [
+              100,
+              208
+            ],
+            "g"
+          ],
+          [
+            "Sosok B",
+            "#8f9bff",
+            [
+              215,
+              208
+            ],
+            "c"
+          ],
+          [
+            "Sosok C",
+            "#ffd95a",
+            [
+              330,
+              208
+            ],
+            "b"
+          ],
+          [
+            "Sosok D",
+            "#38bdf8",
+            [
+              520,
+              208
+            ],
+            "g"
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Email \"SEGERA verifikasi akun\" masuk ke 4 pengguna."
+          ],
+          [
+            10,
+            "Admin IT menerima laporan langsung dari seorang pengguna."
+          ]
+        ],
+        "bub": [
+          [
+            "Sosok A",
+            "Verifikasi? Klik ah."
+          ],
+          [
+            "Sosok B",
+            "Gaji ditahan?! Klik!"
+          ],
+          [
+            "Sosok C",
+            "Cepat diverifikasi..."
+          ],
+          [
+            "Sosok D",
+            "Domainnya aneh..."
+          ]
+        ]
+      },
+      "cc": {
+        "t0": "09:02:00",
+        "dur": 18,
+        "ch": [
+          [
+            "Sosok A",
+            "#ff7a6b",
+            [
+              [
+                0,
+                100,
+                208
+              ],
+              [
+                18,
+                100,
+                208
+              ]
+            ],
+            "g"
+          ],
+          [
+            "Sosok B",
+            "#8f9bff",
+            [
+              [
+                0,
+                215,
+                208
+              ],
+              [
+                18,
+                215,
+                208
+              ]
+            ],
+            "c"
+          ],
+          [
+            "Sosok C",
+            "#ffd95a",
+            [
+              [
+                0,
+                330,
+                208
+              ],
+              [
+                18,
+                330,
+                208
+              ]
+            ],
+            "b"
+          ],
+          [
+            "Sosok D",
+            "#38bdf8",
+            [
+              [
+                0,
+                445,
+                208
+              ],
+              [
+                5,
+                445,
+                208
+              ],
+              [
+                7,
+                445,
+                226
+              ],
+              [
+                10,
+                520,
+                208
+              ],
+              [
+                18,
+                520,
+                208
+              ]
+            ],
+            "g"
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Email \"SEGERA verifikasi akun\" masuk ke 4 pengguna."
+          ],
+          [
+            10,
+            "Admin IT menerima laporan langsung dari seorang pengguna."
+          ]
+        ],
+        "bub": [
+          [
+            3,
+            7,
+            "Sosok A",
+            "Verifikasi? Klik ah."
+          ],
+          [
+            3,
+            8,
+            "Sosok B",
+            "Gaji ditahan?! Klik!"
+          ],
+          [
+            4,
+            9,
+            "Sosok C",
+            "Cepat diverifikasi..."
+          ],
+          [
+            5,
+            9,
+            "Sosok D",
+            "Domainnya aneh..."
+          ],
+          [
+            11,
+            18,
+            "Sosok D",
+            "Ada email palsu!"
+          ]
+        ]
+      },
+      "cul": [
+        "SAKSI KUNCI",
+        "andi",
+        "#38bdf8",
+        "g"
+      ],
+      "end": "Email palsu dari kampus-verif.xyz menjebak 4 orang. Akun bu_ratna dipakai penyerang dari luar negeri."
+    },
+    {
+      "t": "Nilai Bocor",
+      "lv": "Sulit",
+      "tz": "Nilai mahasiswa berubah tengah malam.",
+      "ed": [
+        "brute",
+        "ip",
+        "log"
+      ],
+      "vals": [
+        "10.4.7.23",
+        "GAGAL",
+        "BERHASIL",
+        "Lab Komputer 3",
+        "Dimas",
+        80,
+        85
+      ],
+      "story": [
+        [
+          "Kaprodi",
+          "Nilai beberapa mahasiswa berubah tengah malam. Tidak ada dosen yang mengaku. Tolong selidiki."
+        ],
+        [
+          "Sistem",
+          "PERINGATAN 23:35: akun dosen_wati aktif di luar jam kerja."
+        ],
+        [
+          "Bu Wati",
+          "Saya tidur jam 9 malam. Itu bukan saya!"
+        ]
+      ],
+      "db": {
+        "Perubahan Nilai": [
+          {
+            "No": 1,
+            "Mahasiswa": "Andi",
+            "Mata Kuliah": "Algoritma",
+            "Nilai Lama": 55,
+            "Nilai Baru": 90,
+            "Waktu": "2026-09-29 23:41",
+            "Alamat IP": "10.4.7.23"
+          },
+          {
+            "No": 2,
+            "Mahasiswa": "Andi",
+            "Mata Kuliah": "Matdis",
+            "Nilai Lama": 48,
+            "Nilai Baru": 85,
+            "Waktu": "2026-09-29 23:44",
+            "Alamat IP": "10.4.7.23"
+          },
+          {
+            "No": 3,
+            "Mahasiswa": "Rina",
+            "Mata Kuliah": "Alpro",
+            "Nilai Lama": 70,
+            "Nilai Baru": 72,
+            "Waktu": "2026-09-28 10:15",
+            "Alamat IP": "10.4.2.5"
+          },
+          {
+            "No": 4,
+            "Mahasiswa": "Budi",
+            "Mata Kuliah": "OOP",
+            "Nilai Lama": 60,
+            "Nilai Baru": 65,
+            "Waktu": "2026-09-27 09:30",
+            "Alamat IP": "10.4.2.5"
+          },
+          {
+            "No": 5,
+            "Mahasiswa": "Dimas",
+            "Mata Kuliah": "Kalkulus",
+            "Nilai Lama": 40,
+            "Nilai Baru": 88,
+            "Waktu": "2026-09-29 23:52",
+            "Alamat IP": "10.4.7.23"
+          },
+          {
+            "No": 6,
+            "Mahasiswa": "Sari",
+            "Mata Kuliah": "Basis Data",
+            "Nilai Lama": 75,
+            "Nilai Baru": 78,
+            "Waktu": "2026-09-29 20:05",
+            "Alamat IP": "10.4.2.5"
+          }
+        ],
+        "Catatan Login": [
+          {
+            "No": 1,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.2.5",
+            "Waktu": "2026-09-29 08:02",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 2,
+            "Akun": "andi",
+            "Alamat IP": "10.4.5.9",
+            "Waktu": "2026-09-29 09:10",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 3,
+            "Akun": "rina",
+            "Alamat IP": "10.4.2.8",
+            "Waktu": "2026-09-29 14:00",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 4,
+            "Akun": "rina",
+            "Alamat IP": "10.4.2.8",
+            "Waktu": "2026-09-29 14:01",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 5,
+            "Akun": "budi",
+            "Alamat IP": "10.4.5.11",
+            "Waktu": "2026-09-29 18:45",
+            "Hasil": "BERHASIL"
+          },
+          {
+            "No": 6,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:20",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 7,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:22",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 8,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:24",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 9,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:26",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 10,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:29",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 11,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:31",
+            "Hasil": "GAGAL"
+          },
+          {
+            "No": 12,
+            "Akun": "dosen_wati",
+            "Alamat IP": "10.4.7.23",
+            "Waktu": "2026-09-29 23:35",
+            "Hasil": "BERHASIL"
+          }
+        ],
+        "Absensi Lab": [
+          {
+            "Nama": "Fajar",
+            "Lokasi": "Lab Komputer 3",
+            "Masuk": "2026-09-29 22:50",
+            "Keluar": "2026-09-30 00:10"
+          },
+          {
+            "Nama": "Maya",
+            "Lokasi": "Lab Komputer 3",
+            "Masuk": "2026-09-29 13:00",
+            "Keluar": "2026-09-29 15:00"
+          },
+          {
+            "Nama": "Tono",
+            "Lokasi": "Lab Komputer 1",
+            "Masuk": "2026-09-29 23:00",
+            "Keluar": "2026-09-30 00:30"
+          },
+          {
+            "Nama": "Lina",
+            "Lokasi": "Lab Komputer 3",
+            "Masuk": "2026-09-29 20:00",
+            "Keluar": "2026-09-29 22:30"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Dari Alamat IP mana nilai itu diubah? Klik IP-nya di tabel.",
+          {
+            "$regex": "^10\\.4\\.7\\.23$",
+            "$flags": ""
+          },
+          "Di Perubahan Nilai, saring: Nilai Baru lebih dari 80. Perhatikan IP yang berulang."
+        ],
+        [
+          "Hitung",
+          "Berapa kali IP itu gagal login sebelum berhasil? Pakai tombol 📌 jumlah.",
+          {
+            "$regex": "^6$",
+            "$flags": ""
+          },
+          "Di Catatan Login: Alamat IP sama dengan 10.4.7.23, dan Hasil sama dengan GAGAL. Tekan 📌 Pakai jumlah ini."
+        ],
+        [
+          "Lacak",
+          "Buka Browser dan cari tahu: IP itu berada di lokasi mana? Klik lokasi yang bergaris bawah.",
+          {
+            "$regex": "^Lab Komputer 3$",
+            "$flags": "i"
+          },
+          "Di Browser cari: denah jaringan kampus. Cocokkan 10.4.7.x dengan lokasinya."
+        ],
+        [
+          "Tangkap",
+          "Buka CCTV Lab Komputer 3 dan putar rekamannya. Sosok mana yang masuk lalu mengetik di PC-23 sekitar pukul 23:41? Klik sosoknya.",
+          {
+            "$regex": "^Sosok B$",
+            "$flags": "i"
+          },
+          "Putar CCTV dan lihat siapa yang masuk, lalu duduk di PC-23."
+        ],
+        [
+          "Cocokkan",
+          "Lihat ciri sosok itu lebih jelas di Foto TKP (baju, kacamata, tas), lalu cocokkan dengan foto di internet. Siapa dia? Klik namanya di bawah foto.",
+          {
+            "$regex": "^Fajar$",
+            "$flags": "i"
+          },
+          "Cari di Browser: galeri praktikum lab. Hati-hati, beberapa orang bajunya sama. Cek kacamata dan tas."
+        ]
+      ],
+      "web": [
+        [
+          "wiki.kampus.id/jaringan",
+          "Denah Jaringan Kampus",
+          "ip alamat jaringan denah lokasi perangkat komputer",
+          "<h3>Denah Jaringan Kampus</h3><p>Alamat IP dibagi menurut lokasi:</p><ul><li>10.4.2.x : <u data-v='Ruang Dosen'>Ruang Dosen</u></li><li>10.4.5.x : <u data-v='Perpustakaan'>Perpustakaan</u></li><li>10.4.7.x : <u data-v='Lab Komputer 3'>Lab Komputer 3</u></li></ul>"
+        ],
+        [
+          "lab.kampus.id/galeri",
+          "Galeri Praktikum Lab 3",
+          "galeri foto praktikum lab mahasiswa wajah ciri orang",
+          "<h3>Galeri Praktikum Lab Komputer 3</h3><p>Perhatikan pakaian dan atributnya.</p><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect x=\"6\" y=\"0\" width=\"9\" height=\"21\" rx=\"3\" fill=\"#1b6fd8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"Fajar\">Fajar</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect x=\"6\" y=\"0\" width=\"9\" height=\"21\" rx=\"3\" fill=\"#1b6fd8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/></svg><br><u data-v=\"Maya\">Maya</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"Dimas\">Dimas</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ffd95a\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><path d=\"M-10 -16Q0 -28 10 -16Z\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect x=\"-3\" y=\"-17\" width=\"15\" height=\"3\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.2\"/></svg><br><u data-v=\"Lina\">Lina</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#38bdf8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/></svg><br><u data-v=\"Tono\">Tono</u></span>"
+        ],
+        [
+          "kantin.kampus.id",
+          "Menu Kantin Hari Ini",
+          "kantin makan menu nasi",
+          "<h3>Menu Kantin</h3><p>Nasi goreng, soto ayam, es teh.</p>"
+        ],
+        [
+          "berita.kampus.id",
+          "Berita: Wisuda Oktober",
+          "berita wisuda kampus mahasiswa",
+          "<h3>Wisuda Oktober</h3><p>Wisuda dilaksanakan 12 Oktober di aula utama.</p>"
+        ]
+      ],
+      "sc": {
+        "t0": "23:40:40",
+        "dur": 24,
+        "bg": "<rect width=\"600\" height=\"340\" fill=\"#dfe8ff\"/><rect width=\"600\" height=\"110\" fill=\"#c3d2fb\"/><rect y=\"255\" width=\"600\" height=\"85\" fill=\"#e9d9b8\"/><text x=\"300\" y=\"322\" text-anchor=\"middle\" font-size=\"11\" fill=\"#5b5f8f\">KORIDOR LUAR</text><rect width=\"8\" height=\"120\" y=\"130\" fill=\"#8f9bff\"/><text x=\"12\" y=\"22\" font-size=\"12\" fill=\"#3d4bb8\">TKP · Lab Komputer 3</text><rect x=\"174\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"164\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"200\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">PC-21</text><rect x=\"254\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"244\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"280\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">PC-22</text><rect x=\"334\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"324\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"360\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">PC-23</text><rect x=\"414\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"404\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"440\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">PC-24</text><rect x=\"494\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"484\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"520\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">PC-25</text>",
+        "cap": "Lab Komputer 3 · pukul 23:41. Komputer PC-23 sedang dipakai.",
+        "ch": [
+          [
+            "Sosok A",
+            "#ffd95a",
+            [
+              200,
+              205
+            ],
+            "c"
+          ],
+          [
+            "Sosok B",
+            "#ff7a6b",
+            [
+              360,
+              207
+            ],
+            "gb"
+          ],
+          [
+            "Sosok C",
+            "#38bdf8",
+            [
+              470,
+              300
+            ],
+            ""
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Kamera lab aktif."
+          ],
+          [
+            14,
+            "PC-23 menyala."
+          ],
+          [
+            20,
+            "23:41:00 PC-23 login sebagai dosen_wati. Nilai mulai diubah."
+          ]
+        ],
+        "bub": [
+          [
+            "Sosok A",
+            "Lanjut tugas..."
+          ],
+          [
+            "Sosok B",
+            "Ketik ketik..."
+          ],
+          [
+            "Sosok C",
+            "Lab 1 di mana ya?"
+          ]
+        ]
+      },
+      "cc": {
+        "t0": "23:40:40",
+        "dur": 24,
+        "ch": [
+          [
+            "Sosok A",
+            "#ffd95a",
+            [
+              [
+                0,
+                200,
+                205
+              ],
+              [
+                3,
+                200,
+                205
+              ],
+              [
+                7,
+                40,
+                225
+              ],
+              [
+                9,
+                -30,
+                235
+              ]
+            ],
+            "c"
+          ],
+          [
+            "Sosok B",
+            "#ff7a6b",
+            [
+              [
+                0,
+                -30,
+                235
+              ],
+              [
+                7,
+                -30,
+                235
+              ],
+              [
+                10,
+                300,
+                235
+              ],
+              [
+                12,
+                360,
+                207
+              ],
+              [
+                24,
+                360,
+                207
+              ]
+            ],
+            "gb"
+          ],
+          [
+            "Sosok C",
+            "#38bdf8",
+            [
+              [
+                0,
+                -30,
+                300
+              ],
+              [
+                6,
+                -30,
+                300
+              ],
+              [
+                22,
+                640,
+                300
+              ]
+            ],
+            ""
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Kamera lab aktif."
+          ],
+          [
+            14,
+            "PC-23 menyala."
+          ],
+          [
+            20,
+            "23:41:00 PC-23 login sebagai dosen_wati."
+          ]
+        ],
+        "bub": [
+          [
+            3,
+            6,
+            "Sosok A",
+            "Aku pulang dulu."
+          ],
+          [
+            13,
+            24,
+            "Sosok B",
+            "Ketik ketik..."
+          ],
+          [
+            10,
+            14,
+            "Sosok C",
+            "Lab 1 di mana ya?"
+          ]
+        ]
+      },
+      "cul": [
+        "PELAKU",
+        "Fajar",
+        "#ff7a6b",
+        "gb"
+      ],
+      "end": "Pelakunya Fajar. Ia menebak sandi Bu Wati berkali-kali dari Lab Komputer 3, lalu mengubah nilai."
+    },
+    {
+      "t": "Data Pelanggan Bocor",
+      "lv": "Ahli",
+      "tz": "Ada unduhan besar tengah malam.",
+      "ed": [
+        "share",
+        "min",
+        "mfa"
+      ],
+      "vals": [
+        "tono.k",
+        "Dewi Anggraini",
+        "Tono Kurniawan",
+        500
+      ],
+      "story": [
+        [
+          "Direktur",
+          "Data pelanggan kita muncul di forum gelap. Cari tahu siapa yang mengambilnya."
+        ],
+        [
+          "Sistem",
+          "PERINGATAN 22:15: unduhan sangat besar dari server data."
+        ],
+        [
+          "Tono",
+          "Saya pulang jam 5 sore. Sungguh bukan saya!"
+        ]
+      ],
+      "db": {
+        "Akses File": [
+          {
+            "No": 1,
+            "Akun": "maya.l",
+            "File": "Daftar Cuti",
+            "Waktu": "2026-10-02 10:00",
+            "Unduh (MB)": 2
+          },
+          {
+            "No": 2,
+            "Akun": "budi.s",
+            "File": "Materi Promo",
+            "Waktu": "2026-10-02 13:20",
+            "Unduh (MB)": 45
+          },
+          {
+            "No": 3,
+            "Akun": "tono.k",
+            "File": "Laporan Bulanan",
+            "Waktu": "2026-10-02 15:00",
+            "Unduh (MB)": 12
+          },
+          {
+            "No": 4,
+            "Akun": "tono.k",
+            "File": "Data Pelanggan Lengkap",
+            "Waktu": "2026-10-02 22:15",
+            "Unduh (MB)": 820
+          }
+        ],
+        "Absensi Gedung": [
+          {
+            "Nama": "Tono Kurniawan",
+            "Masuk": "2026-10-02 08:00",
+            "Keluar": "2026-10-02 17:30"
+          },
+          {
+            "Nama": "Budi Santoso",
+            "Masuk": "2026-10-02 09:00",
+            "Keluar": "2026-10-02 17:00"
+          },
+          {
+            "Nama": "Maya Lestari",
+            "Masuk": "2026-10-02 08:30",
+            "Keluar": "2026-10-02 16:45"
+          },
+          {
+            "Nama": "Dewi Anggraini",
+            "Masuk": "2026-10-02 21:30",
+            "Keluar": "2026-10-02 23:10"
+          }
+        ]
+      },
+      "tk": [
+        [
+          "Cari",
+          "Akun mana yang mengunduh data amat besar? Klik nama akunnya di tabel.",
+          {
+            "$regex": "^tono\\.k$",
+            "$flags": "i"
+          },
+          "Di Akses File, saring: Unduh (MB) lebih dari 500."
+        ],
+        [
+          "Lacak",
+          "Siapa pemilik akun itu? Cari di Browser (direktori karyawan), lalu klik namanya.",
+          {
+            "$regex": "^Tono Kurniawan$",
+            "$flags": "i"
+          },
+          "Di Browser cari: direktori karyawan."
+        ],
+        [
+          "Tangkap",
+          "Buka CCTV kantor dan putar sampai unduhan 22:15. Sosok mana yang duduk di meja Tono? Klik sosoknya.",
+          {
+            "$regex": "^Sosok A$",
+            "$flags": "i"
+          },
+          "Putar CCTV dan lihat siapa yang masuk lalu duduk di meja Tono."
+        ],
+        [
+          "Cocokkan",
+          "Lihat ciri sosoknya di Foto TKP, lalu cocokkan dengan foto karyawan. Siapa dia? Klik namanya.",
+          {
+            "$regex": "^Dewi Anggraini$",
+            "$flags": "i"
+          },
+          "Cari di Browser: foto karyawan. Bandingkan warna baju, kacamata, dan topi. Absensi Gedung juga membantu."
+        ],
+        [
+          "Bukti akhir",
+          "Data itu dijual di internet. Di Browser, cari siapa username penjualnya dan klik username itu.",
+          {
+            "$regex": "^dw_anggi$",
+            "$flags": "i"
+          },
+          "Di Browser cari: forum jual data pelanggan."
+        ]
+      ],
+      "web": [
+        [
+          "hr.kantor.id/direktori",
+          "Direktori Karyawan",
+          "direktori karyawan akun nama pemilik divisi",
+          "<h3>Direktori Karyawan</h3><ul><li>tono.k : <u data-v='Tono Kurniawan'>Tono Kurniawan</u> (Keuangan)</li><li>dewi.a : <u data-v='Dewi Anggraini'>Dewi Anggraini</u> (Magang IT)</li><li>budi.s : <u data-v='Budi Santoso'>Budi Santoso</u> (Pemasaran)</li><li>maya.l : <u data-v='Maya Lestari'>Maya Lestari</u> (HRD)</li></ul>"
+        ],
+        [
+          "hr.kantor.id/foto",
+          "Foto Karyawan",
+          "foto karyawan wajah ciri orang pegawai",
+          "<h3>Foto Karyawan</h3><p>Perhatikan pakaian dan atributnya.</p><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect x=\"6\" y=\"0\" width=\"9\" height=\"21\" rx=\"3\" fill=\"#1b6fd8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#38bdf8\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/></svg><br><u data-v=\"Tono Kurniawan\">Tono Kurniawan</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><path d=\"M-10 -16Q0 -28 10 -16Z\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect x=\"-3\" y=\"-17\" width=\"15\" height=\"3\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.2\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"Dewi Anggraini\">Dewi Anggraini</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#ff7a6b\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><rect x=\"-8\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/><rect x=\"1\" y=\"-14\" width=\"7\" height=\"5\" rx=\"2\" fill=\"#0d0f24\"/></svg><br><u data-v=\"Budi Santoso\">Budi Santoso</u></span><span style=\"display:inline-block;text-align:center;margin:4px 8px\"><svg viewBox=\"-20 -32 40 76\" width=\"56\" height=\"106\"><rect class=\"l1\" x=\"-8\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect class=\"l2\" x=\"2\" y=\"22\" width=\"6\" height=\"9\" rx=\"2\" fill=\"#2d3270\"/><rect x=\"-9\" y=\"-2\" width=\"18\" height=\"27\" rx=\"8\" fill=\"#8f9bff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><circle cy=\"-12\" r=\"9\" fill=\"#f6d9c0\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><path d=\"M-9 -13a9 9 0 0 1 18 0z\" fill=\"#2d3270\"/><path d=\"M-10 -16Q0 -28 10 -16Z\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.5\"/><rect x=\"-3\" y=\"-17\" width=\"15\" height=\"3\" fill=\"#fff\" stroke=\"#0d0f24\" stroke-width=\"1.2\"/></svg><br><u data-v=\"Maya Lestari\">Maya Lestari</u></span>"
+        ],
+        [
+          "forumgelap.net/jual-data",
+          "Forum: Jual Data Pelanggan",
+          "forum jual data pelanggan dijual bocor",
+          "<h3>Dijual: data pelanggan</h3><p>Penjual: <u data-v='dw_anggi'>dw_anggi</u></p><p>Isi: 5.000 pelanggan lengkap. Bayar kripto.</p>"
+        ],
+        [
+          "sosmed.id/dw_anggi",
+          "Profil @dw_anggi",
+          "profil dw_anggi dewi anggraini sosial media",
+          "<h3>@dw_anggi</h3><p>Dewi Anggraini · Magang IT · suka kopi dan kucing.</p>"
+        ],
+        [
+          "berita.kantor.id",
+          "Berita Internal",
+          "berita internal kantor acara",
+          "<h3>Berita</h3><p>Gathering kantor bulan depan.</p>"
+        ]
+      ],
+      "sc": {
+        "t0": "22:14:50",
+        "dur": 22,
+        "bg": "<rect width=\"600\" height=\"340\" fill=\"#dfe8ff\"/><rect width=\"600\" height=\"110\" fill=\"#c3d2fb\"/><rect y=\"255\" width=\"600\" height=\"85\" fill=\"#e9d9b8\"/><text x=\"12\" y=\"22\" font-size=\"12\" fill=\"#3d4bb8\">TKP · Kantor Keuangan · malam</text><rect width=\"8\" height=\"120\" y=\"130\" fill=\"#8f9bff\"/><rect x=\"510\" y=\"130\" width=\"86\" height=\"60\" fill=\"#3d4bb8\" stroke=\"#0d0f24\" stroke-width=\"2\"/><text x=\"553\" y=\"165\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\">POS SATPAM</text><rect x=\"104\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"94\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"130\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">Meja Budi</text><rect x=\"214\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#0f1129\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"204\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"240\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">Meja Maya</text><rect x=\"324\" y=\"118\" width=\"52\" height=\"36\" rx=\"4\" fill=\"#1f5f9e\" stroke=\"#0d0f24\" stroke-width=\"2\"/><rect x=\"314\" y=\"160\" width=\"72\" height=\"10\" fill=\"#7b5e4b\"/><text x=\"350\" y=\"112\" text-anchor=\"middle\" font-size=\"10\" fill=\"#5b5f8f\">Meja Tono</text>",
+        "cap": "Kantor Keuangan · pukul 22:15. Komputer di meja Tono menyala.",
+        "ch": [
+          [
+            "Sosok A",
+            "#ff7a6b",
+            [
+              350,
+              207
+            ],
+            "gc"
+          ],
+          [
+            "Sosok B",
+            "#ffd95a",
+            [
+              553,
+              215
+            ],
+            "c"
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Kamera aktif. Kantor tampak sepi."
+          ],
+          [
+            10,
+            "22:15:00 komputer Tono menyala."
+          ],
+          [
+            14,
+            "Unduhan data pelanggan dimulai."
+          ]
+        ],
+        "bub": [
+          [
+            "Sosok A",
+            "Mengunduh..."
+          ],
+          [
+            "Sosok B",
+            "Ronda dulu ah."
+          ]
+        ]
+      },
+      "cc": {
+        "t0": "22:14:50",
+        "dur": 22,
+        "ch": [
+          [
+            "Sosok A",
+            "#ff7a6b",
+            [
+              [
+                0,
+                -30,
+                235
+              ],
+              [
+                4,
+                -30,
+                235
+              ],
+              [
+                9,
+                270,
+                235
+              ],
+              [
+                11,
+                350,
+                207
+              ],
+              [
+                22,
+                350,
+                207
+              ]
+            ],
+            "gc"
+          ],
+          [
+            "Sosok B",
+            "#ffd95a",
+            [
+              [
+                0,
+                553,
+                215
+              ],
+              [
+                12,
+                553,
+                215
+              ],
+              [
+                17,
+                470,
+                300
+              ],
+              [
+                22,
+                300,
+                305
+              ]
+            ],
+            "c"
+          ]
+        ],
+        "ev": [
+          [
+            0,
+            "Kamera aktif. Kantor tampak sepi."
+          ],
+          [
+            10,
+            "22:15:00 komputer Tono menyala."
+          ],
+          [
+            14,
+            "Unduhan data pelanggan dimulai."
+          ]
+        ],
+        "bub": [
+          [
+            3,
+            9,
+            "Sosok B",
+            "Ronda dulu ah."
+          ],
+          [
+            11,
+            15,
+            "Sosok A",
+            "Sepi, aman..."
+          ],
+          [
+            15,
+            22,
+            "Sosok A",
+            "Mengunduh..."
+          ]
+        ]
+      },
+      "cul": [
+        "PELAKU",
+        "Dewi Anggraini",
+        "#ff7a6b",
+        "gc"
+      ],
+      "end": "Dewi memakai akun Tono untuk mengunduh data saat Tono sudah pulang, lalu menjualnya di forum dengan username dw_anggi."
+    }
+  ],
+  "lessons": {
+    "otp": [
+      "🔢 OTP: Kode Rahasiamu",
+      "OTP adalah kode sekali pakai untuk membuktikan bahwa itu benar-benar kamu. Penipu menelepon pura-pura dari bank lalu memintanya.",
+      "Aturan emas: bank dan marketplace tidak pernah meminta OTP. Jangan berikan ke siapa pun."
+    ],
+    "sql": [
+      "🔎 Bertanya ke Data (SQL)",
+      "SQL adalah bahasa untuk bertanya ke data. Ada tiga bagian: SELECT (apa yang ditampilkan), FROM (dari tabel mana), WHERE (syaratnya). Di Terminal kamu tinggal menyusun bubble, tanpa mengetik.",
+      "Contoh: SELECT * FROM Log Telepon WHERE Catatan = 'Mengaku dari bank' artinya tampilkan semua panggilan yang dicatat mengaku dari bank."
+    ],
+    "sql2": [
+      "🧮 SQL Lanjutan",
+      "AND menggabungkan dua syarat. LIKE mencari pola ('Kopi%' berarti diawali Kopi). COUNT(*) menghitung jumlah baris.",
+      "Tips: mulai dari pertanyaan sederhana, lalu persempit dengan syarat tambahan."
+    ],
+    "wifi": [
+      "📶 Waspada WiFi Publik",
+      "WiFi terbuka tanpa sandi bisa dibuat penipu dengan nama mirip kafe. Datamu bisa disadap.",
+      "Tips: tanyakan nama dan sandi WiFi ke petugas, hindari login bank di WiFi publik, atau pakai data seluler."
+    ],
+    "apk": [
+      "📦 Aplikasi di Luar Toko Resmi",
+      "File APK dari tautan atau grup sering disusupi. Tandanya: meminta izin berlebihan, misalnya membaca SMS.",
+      "Tips: unduh hanya dari toko aplikasi resmi dan periksa izin sebelum memasang."
+    ],
+    "toko": [
+      "🛒 Toko Online Palsu",
+      "Harga terlalu murah, ulasan sempurna yang muncul bersamaan, dan rekening pribadi adalah tanda toko palsu.",
+      "Tips: cek umur domain, baca ulasan bintang rendah, dan bayar lewat platform resmi."
+    ],
+    "qris": [
+      "🔳 QRIS Palsu",
+      "Penipu menempel stiker QRIS sendiri menimpa yang asli, sehingga uang masuk ke rekening mereka.",
+      "Tips: periksa nama merchant yang muncul di layar sebelum membayar."
+    ],
+    "brute": [
+      "🔑 Tebak Sandi (Brute Force)",
+      "Penyerang mencoba banyak kata sandi satu per satu sampai ada yang cocok. Tandanya: banyak GAGAL beruntun, lalu satu BERHASIL.",
+      "Cegah: sandi panjang, batasi percobaan login, aktifkan verifikasi dua langkah."
+    ],
+    "ip": [
+      "🌐 Alamat IP",
+      "Alamat IP mirip plat nomor perangkat di jaringan. Dari situ perangkat dan lokasinya bisa dilacak.",
+      "Catatan: IP bisa disamarkan (misalnya VPN), jadi cocokkan dengan bukti lain."
+    ],
+    "log": [
+      "📜 Catatan Aktivitas (Log)",
+      "Sistem mencatat siapa melakukan apa, kapan, dan dari mana. Cari pola janggal: jam tak wajar, banyak gagal, perubahan besar.",
+      "Tips: simpan salinan log di tempat terpisah agar tak bisa dihapus pelaku."
+    ],
+    "phish": [
+      "🎣 Waspada Phishing",
+      "Pesan palsu yang menyamar jadi bank, kampus, atau atasan agar kamu menyerahkan sandi. Tandanya: mendesak, pengirim mirip tapi beda, tautan aneh.",
+      "Tips: jangan klik tautan dari pesan yang menekan. Buka situs resmi lewat pencarian sendiri."
+    ],
+    "dom": [
+      "🔍 Cek Nama Domain",
+      "Perhatikan bagian setelah @. 'kampus.ac.id' asli, sedangkan 'kampus-verif.xyz' hanya meniru.",
+      "Tips: tahan kursor pada tautan untuk melihat alamat aslinya sebelum diklik."
+    ],
+    "mfa": [
+      "📲 Verifikasi Dua Langkah",
+      "Selain sandi, kamu perlu kode dari HP. Walau sandi bocor, penyerang tetap tertahan.",
+      "Tips: aktifkan untuk email, bank, dan akun kerja."
+    ],
+    "share": [
+      "🤝 Jangan Pinjamkan Akun",
+      "Akun yang dipakai bersama membuat jejak jadi kabur: log menunjuk pemilik, padahal pelakunya orang lain.",
+      "Tips: tiap orang punya akun sendiri, dan keluar (logout) saat selesai."
+    ],
+    "min": [
+      "🔐 Akses Secukupnya",
+      "Karyawan hanya perlu akses ke data yang dipakai kerjanya. Data pelanggan sebaiknya dibatasi dan unduhan besar dipantau.",
+      "Tips: beri peringatan otomatis untuk unduhan besar di luar jam kerja."
+    ],
+    "sandi": [
+      "🗒️ Sandi Jangan Ditempel",
+      "Menulis sandi di sticky note yang menempel di monitor sama saja membukakan pintu untuk siapa saja yang lewat. Bahkan kamera CCTV bisa ikut merekamnya.",
+      "Tips: jangan pakai sandi gampang seperti nama+123, simpan sandi di pengelola sandi (password manager), dan aktifkan verifikasi dua langkah."
+    ]
+  },
+  "wallpaper": "<svg class=\"wall\" viewBox=\"0 0 1000 690\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><defs><linearGradient id=\"wl\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#171a3a\"/><stop offset=\"1\" stop-color=\"#2b3068\"/></linearGradient><linearGradient id=\"nt\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#0b0d2e\"/><stop offset=\"1\" stop-color=\"#4553c9\"/></linearGradient><linearGradient id=\"lg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd95a\" stop-opacity=\".5\"/><stop offset=\"1\" stop-color=\"#ffd95a\" stop-opacity=\"0\"/></linearGradient></defs><rect width=\"1000\" height=\"690\" fill=\"url(#wl)\"/><rect x=\"560\" y=\"46\" width=\"390\" height=\"340\" fill=\"url(#nt)\" stroke=\"#0d0f24\" stroke-width=\"8\"/><circle cx=\"860\" cy=\"118\" r=\"30\" fill=\"#f3efe6\"/><path d=\"M560 386V270h40v-34h30v54h30v-96h40v74h30v-44h40v64h30v-116h40v96h30v-34h40v142z\" fill=\"#10122b\"/><rect x=\"560\" y=\"54\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"87\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"120\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"153\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"186\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"219\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"252\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"285\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"318\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><rect x=\"560\" y=\"351\" width=\"390\" height=\"11\" fill=\"#0d0f24\" opacity=\".6\"/><polygon points=\"560,46 950,46 1000,330 480,330\" fill=\"#fff\" opacity=\".05\"/><rect x=\"100\" y=\"86\" width=\"340\" height=\"216\" fill=\"#c8955a\" stroke=\"#5a3f3a\" stroke-width=\"9\"/><polyline points=\"170,140 290,200 380,130 210,250\" fill=\"none\" stroke=\"#d9483a\" stroke-width=\"3\"/><g stroke=\"#0d0f24\" stroke-width=\"2\"><rect x=\"140\" y=\"112\" width=\"60\" height=\"50\" fill=\"#fff6dd\" transform=\"rotate(-6 170 137)\"/><rect x=\"260\" y=\"170\" width=\"64\" height=\"52\" fill=\"#fff\" transform=\"rotate(5 290 196)\"/><rect x=\"350\" y=\"106\" width=\"56\" height=\"48\" fill=\"#ffd95a\" transform=\"rotate(8 378 130)\"/><rect x=\"182\" y=\"226\" width=\"62\" height=\"50\" fill=\"#a9b3ff\" transform=\"rotate(-4 213 251)\"/></g><circle cx=\"170\" cy=\"140\" r=\"5\" fill=\"#d9483a\"/><circle cx=\"290\" cy=\"200\" r=\"5\" fill=\"#d9483a\"/><circle cx=\"380\" cy=\"130\" r=\"5\" fill=\"#d9483a\"/><rect y=\"520\" width=\"1000\" height=\"170\" fill=\"#3b2a2f\"/><rect y=\"520\" width=\"1000\" height=\"10\" fill=\"#5a3f3a\"/><polygon points=\"262,392 312,404 440,560 190,560\" fill=\"url(#lg)\"/><ellipse cx=\"170\" cy=\"522\" rx=\"44\" ry=\"9\" fill=\"#10122b\"/><path d=\"M170 516L214 404L276 352\" stroke=\"#2d3270\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/><polygon points=\"248,336 322,366 296,410 222,380\" fill=\"#ffd95a\" stroke=\"#0d0f24\" stroke-width=\"3\"/><g stroke=\"#0d0f24\" stroke-width=\"3\"><rect x=\"470\" y=\"478\" width=\"130\" height=\"62\" fill=\"#ff7a6b\" transform=\"rotate(-3 535 509)\"/><rect x=\"490\" y=\"462\" width=\"130\" height=\"62\" fill=\"#38bdf8\" transform=\"rotate(2 555 493)\"/><rect x=\"480\" y=\"446\" width=\"130\" height=\"62\" fill=\"#a9b3ff\" transform=\"rotate(-1 545 477)\"/><rect x=\"700\" y=\"486\" width=\"44\" height=\"46\" rx=\"6\" fill=\"#fff6dd\"/><rect x=\"662\" y=\"578\" width=\"120\" height=\"80\" fill=\"#fff\" transform=\"rotate(-8 722 618)\"/></g><path d=\"M744 498h14v22h-14\" stroke=\"#fff6dd\" stroke-width=\"6\" fill=\"none\"/><g fill=\"none\" stroke=\"#1b1e42\" stroke-width=\"2\" transform=\"rotate(-8 722 618)\"><ellipse cx=\"722\" cy=\"618\" rx=\"8\" ry=\"11\"/><ellipse cx=\"722\" cy=\"618\" rx=\"16\" ry=\"21\"/><ellipse cx=\"722\" cy=\"618\" rx=\"24\" ry=\"31\"/></g><circle cx=\"860\" cy=\"590\" r=\"30\" fill=\"#8f9bff\" fill-opacity=\".35\" stroke=\"#f3efe6\" stroke-width=\"7\"/><path d=\"M882 612L920 652\" stroke=\"#f3efe6\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+}
