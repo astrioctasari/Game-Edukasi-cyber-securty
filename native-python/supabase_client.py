@@ -42,7 +42,7 @@ def _friendly_auth_error(status: int, payload: dict | None, fallback: str) -> Su
     if "invalid_credentials" in low or "invalid login credentials" in low:
         msg = "Email atau password salah."
     elif "email_not_confirmed" in low or "email not confirmed" in low:
-        msg = "Email belum diverifikasi. Silakan klik tautan verifikasi di emailmu terlebih dahulu."
+        msg = "Email belum diverifikasi. Silakan cek kotak masuk emailmu terlebih dahulu."
     elif "user_already_exists" in low or "already registered" in low:
         msg = "Email ini sudah terdaftar. Silakan masuk atau gunakan fitur Lupa Password."
     elif "weak_password" in low or "at least 6 characters" in low:
@@ -51,8 +51,10 @@ def _friendly_auth_error(status: int, payload: dict | None, fallback: str) -> Su
         msg = "Password baru harus berbeda dari password lama."
     elif status == 429 or "rate_limit" in low or "security purposes" in low:
         msg = "Terlalu banyak permintaan email. Tunggu sekitar 1 menit lalu coba lagi."
-    elif "otp_expired" in low or "expired" in low or "invalid" in low and "token" in low:
-        msg = "Kode atau tautan pemulihan tidak valid atau sudah kedaluwarsa."
+    elif "otp_expired" in low or "expired" in low or ("invalid" in low and "token" in low):
+        msg = "Kode OTP atau tautan tidak valid atau sudah kedaluwarsa."
+    elif "signups not allowed" in low or "otp_disabled" in low:
+        msg = "Email belum terdaftar. Silakan buat akun terlebih dahulu di menu Daftar."
     elif "validation_failed" in low or "unable to validate email" in low:
         msg = "Format alamat email tidak valid."
     else:
@@ -65,7 +67,7 @@ _CALLBACK_HTML = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Detektif Siber — Verifikasi Akun</title>
+<title>Detektif Siber — Autentikasi</title>
 <style>
   body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
          background:#171a3a; font-family:'Segoe UI',Arial,sans-serif; color:#111; padding:16px; }
@@ -115,8 +117,10 @@ _CALLBACK_HTML = """<!DOCTYPE html>
       box.innerHTML = "<b>⛔ Verifikasi Gagal</b><br>" + (data.error_description || data.error);
     } else if (data.type === "recovery") {
       box.innerHTML = "<b>✅ Tautan Reset Password Terverifikasi!</b><br>Silakan kembali ke jendela aplikasi <b>Detektif Siber</b> untuk menyimpan password barumu. Tab browser ini boleh ditutup.";
+    } else if (data.type === "magiclink" || data.type === "email") {
+      box.innerHTML = "<b>✅ Login OTP Berhasil!</b><br>Sesi masuk telah dikirim ke aplikasi <b>Detektif Siber</b>. Silakan kembali ke jendela aplikasi.";
     } else {
-      box.innerHTML = "<b>✅ Email Berhasil Diverifikasi!</b><br>Akun detektifmu sudah aktif. Silakan kembali ke aplikasi <b>Detektif Siber</b> untuk masuk.";
+      box.innerHTML = "<b>✅ Email Berhasil Diverifikasi!</b><br>Akun detektifmu sudah aktif. Silakan kembali ke aplikasi <b>Detektif Siber</b>.";
     }
   }).catch(function() {
     box.innerHTML = "Verifikasi selesai. Silakan kembali ke aplikasi Detektif Siber.";
@@ -212,6 +216,27 @@ class AuthCallbackListener:
                 pass
 
 
+def _row_to_profile(row: dict, default_username: str = "") -> dict:
+    return {
+        "username": str(row.get("username") or default_username),
+        "email": str(row.get("email") or ""),
+        "user_id": str(row.get("user_id") or ""),
+        "display_name": str(row.get("display_name") or ""),
+        "bio": str(row.get("bio") or ""),
+        "xp": int(row.get("xp", 0) or 0),
+        "avatar": int(row.get("avatar", 0) or 0),
+        "language": str(row.get("language") or "id"),
+        "music": bool(row.get("music", True)),
+        "sound": bool(row.get("sound", True)),
+        "seen": bool(row.get("seen", False)),
+        "query_runs": int(row.get("query_runs", 0) or 0),
+        "done": row.get("done") or [],
+        "progress": row.get("progress") or [],
+        "read": row.get("read_lessons") or {},
+        "got": row.get("got_evidence") or {},
+    }
+
+
 class SupabaseClient:
     """Connects to Supabase Auth & PostgREST API with local-fallback safety."""
 
@@ -251,6 +276,10 @@ class SupabaseClient:
     @property
     def redirect_url(self) -> str:
         return _REDIRECT_URL
+
+    @property
+    def has_active_session(self) -> bool:
+        return bool(self.access_token or self.refresh_token)
 
     def set_session(self, access_token: str = "", refresh_token: str = "",
                     user_id: str = "", email: str = "") -> None:
@@ -312,7 +341,6 @@ class SupabaseClient:
             if err.code == 401 and self.access_token and self.refresh_token:
                 if self.refresh_auth_session():
                     return self._raw_request(method, path, payload, None, extra_headers)
-                # Fall back to publishable key for public tables
                 return self._raw_request(method, path, payload, self.key, extra_headers)
             raise
 
@@ -342,7 +370,7 @@ class SupabaseClient:
                 "Tidak dapat terhubung ke server Supabase. Periksa koneksi internetmu."
             ) from err
 
-    # -- Auth API -----------------------------------------------------------
+    # -- Username & Profile Lookup Helpers ----------------------------------
     def username_exists(self, username: str) -> bool:
         clean = username.strip()
         if not self.enabled or not clean:
@@ -351,13 +379,184 @@ class SupabaseClient:
             encoded = urllib.parse.quote(clean.casefold(), safe="")
             rows = self._raw_request(
                 "GET",
-                f"/rest/v1/player_profiles?select=username&username_lower=eq.{encoded}&limit=1",
+                f"/rest/v1/player_profiles?select=username,user_id&username_lower=eq.{encoded}&limit=1",
                 bearer=self.key,
             )
             return isinstance(rows, list) and len(rows) > 0
         except (urllib.error.URLError, TimeoutError, ValueError):
             return False
 
+    def username_taken_by_other(
+        self, username: str, current_user_id: str = "", old_username: str = ""
+    ) -> bool:
+        clean = username.strip()
+        if not self.enabled or not clean:
+            return False
+        if old_username and clean.casefold() == old_username.strip().casefold():
+            return False
+        try:
+            encoded = urllib.parse.quote(clean.casefold(), safe="")
+            rows = self._raw_request(
+                "GET",
+                f"/rest/v1/player_profiles?select=username,user_id&username_lower=eq.{encoded}&limit=1",
+                bearer=self.key,
+            )
+            if not isinstance(rows, list) or not rows:
+                return False
+            row_uid = str(rows[0].get("user_id") or "")
+            if current_user_id and row_uid and row_uid == current_user_id:
+                return False
+            return True
+        except (urllib.error.URLError, TimeoutError, ValueError):
+            return False
+
+    def _pick_unique_username(self, base: str) -> str:
+        clean_base = (base.strip() or "detektif")[:20]
+        candidate = clean_base
+        suffix = 2
+        while self.username_exists(candidate) and suffix < 100:
+            candidate = f"{clean_base[:19]}_{suffix}"
+            suffix += 1
+        return candidate
+
+    def _finalize_auth_session(self, res: dict, fallback_email: str = "") -> dict:
+        access_token = str(res.get("access_token") or self.access_token or "")
+        refresh_token = str(res.get("refresh_token") or self.refresh_token or "")
+        raw_user = res.get("user")
+        user_obj: dict = raw_user if isinstance(raw_user, dict) else res
+        uid = str(user_obj.get("id") or "")
+        email = str(user_obj.get("email") or fallback_email).strip().lower()
+        raw_meta = user_obj.get("user_metadata")
+        meta: dict = raw_meta if isinstance(raw_meta, dict) else {}
+        meta_username = str(meta.get("username") or "").strip()
+        meta_display = str(meta.get("display_name") or "").strip()
+        meta_bio = str(meta.get("bio") or "").strip()
+
+        self.set_session(access_token, refresh_token, uid, email)
+        profile = self.load_or_create_profile_for_user(
+            user_id=uid,
+            email=email,
+            preferred_username=meta_username,
+            display_name=meta_display,
+            bio=meta_bio,
+        )
+        return {
+            "username": profile["username"],
+            "email": email,
+            "user_id": uid,
+            "display_name": profile.get("display_name", meta_display),
+            "bio": profile.get("bio", meta_bio),
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "profile": profile,
+        }
+
+    def load_or_create_profile_for_user(
+        self,
+        user_id: str,
+        email: str,
+        preferred_username: str = "",
+        display_name: str = "",
+        bio: str = "",
+    ) -> dict:
+        if self.enabled:
+            try:
+                # 1. Match by user_id
+                if user_id:
+                    uid_q = urllib.parse.quote(user_id, safe="")
+                    rows = self._request(
+                        "GET",
+                        f"/rest/v1/player_profiles?user_id=eq.{uid_q}&limit=1",
+                    )
+                    if isinstance(rows, list) and rows:
+                        prof = _row_to_profile(rows[0], preferred_username)
+                        if email and not prof.get("email"):
+                            prof["email"] = email
+                            self.save_profile(prof)
+                        return prof
+
+                # 2. Match by email (case-insensitive)
+                if email:
+                    mail_q = urllib.parse.quote(email.lower(), safe="")
+                    rows = self._request(
+                        "GET",
+                        f"/rest/v1/player_profiles?email=ilike.{mail_q}&limit=1",
+                    )
+                    if isinstance(rows, list) and rows:
+                        row = rows[0]
+                        row_uid = str(row.get("user_id") or "")
+                        if not row_uid or row_uid == user_id:
+                            prof = _row_to_profile(row, preferred_username)
+                            prof["user_id"] = user_id
+                            prof["email"] = email
+                            self._patch_profile_by_id(str(row.get("id") or ""), {
+                                "user_id": user_id or None,
+                                "email": email,
+                            })
+                            return prof
+
+                # 3. Match by preferred_username if not yet claimed by another user_id
+                if preferred_username:
+                    un_q = urllib.parse.quote(preferred_username.casefold(), safe="")
+                    rows = self._request(
+                        "GET",
+                        f"/rest/v1/player_profiles?username_lower=eq.{un_q}&limit=1",
+                    )
+                    if isinstance(rows, list) and rows:
+                        row = rows[0]
+                        row_uid = str(row.get("user_id") or "")
+                        if not row_uid or row_uid == user_id:
+                            prof = _row_to_profile(row, preferred_username)
+                            prof["user_id"] = user_id
+                            prof["email"] = email
+                            self._patch_profile_by_id(str(row.get("id") or ""), {
+                                "user_id": user_id or None,
+                                "email": email,
+                            })
+                            return prof
+            except (urllib.error.URLError, TimeoutError, ValueError) as err:
+                _LOG.warning("Profile lookup fallback triggered: %s", err)
+
+        base_name = preferred_username or (email.split("@")[0][:24] if email else "detektif")
+        chosen_username = self._pick_unique_username(base_name) if self.enabled else base_name
+        new_prof = {
+            "username": chosen_username,
+            "email": email,
+            "user_id": user_id,
+            "display_name": display_name,
+            "bio": bio,
+            "xp": 0,
+            "avatar": 0,
+            "language": "id",
+            "music": True,
+            "sound": True,
+            "seen": False,
+            "query_runs": 0,
+            "done": [],
+            "progress": [],
+            "read": {},
+            "got": {},
+        }
+        if self.enabled:
+            self.save_profile(new_prof)
+        return new_prof
+
+    def _patch_profile_by_id(self, row_id: str, fields: dict) -> bool:
+        if not self.enabled or not row_id:
+            return False
+        try:
+            id_q = urllib.parse.quote(row_id, safe="")
+            self._request(
+                "PATCH",
+                f"/rest/v1/player_profiles?id=eq.{id_q}",
+                payload=fields,
+                extra_headers={"Prefer": "return=minimal"},
+            )
+            return True
+        except (urllib.error.URLError, TimeoutError, ValueError):
+            return False
+
+    # -- Auth API (Sign Up, Password Login, OTP Login, Reset, Profile Edit) --
     def sign_up(self, username: str, email: str, password: str) -> dict:
         clean_user = username.strip()
         clean_email = email.strip().lower()
@@ -383,8 +582,9 @@ class SupabaseClient:
             fallback_error="Pendaftaran akun gagal.",
         )
 
-        user_obj = res.get("user") if isinstance(res.get("user"), dict) else res
-        identities = user_obj.get("identities") if isinstance(user_obj, dict) else None
+        raw_user = res.get("user")
+        user_obj: dict = raw_user if isinstance(raw_user, dict) else res
+        identities = user_obj.get("identities")
         if isinstance(identities, list) and len(identities) == 0:
             raise SupabaseAuthError(
                 "Email ini sudah terdaftar. Silakan masuk atau gunakan Lupa Password.",
@@ -394,13 +594,16 @@ class SupabaseClient:
 
         access_token = str(res.get("access_token") or "")
         refresh_token = str(res.get("refresh_token") or "")
-        uid = str(user_obj.get("id") or "") if isinstance(user_obj, dict) else ""
+        uid = str(user_obj.get("id") or "")
         if access_token:
             self.set_session(access_token, refresh_token, uid, clean_email)
 
-        # Initialize the detective's profile row in player_profiles
         self.save_profile({
             "username": clean_user,
+            "email": clean_email,
+            "user_id": uid,
+            "display_name": "",
+            "bio": "",
             "xp": 0,
             "avatar": 0,
             "language": "id",
@@ -436,27 +639,107 @@ class SupabaseClient:
             payload={"email": clean_email, "password": password},
             fallback_error="Gagal masuk ke akun.",
         )
-        access_token = str(res.get("access_token") or "")
-        refresh_token = str(res.get("refresh_token") or "")
-        raw_user = res.get("user")
-        user_obj: dict = raw_user if isinstance(raw_user, dict) else {}
-        uid = str(user_obj.get("id") or "")
-        raw_meta = user_obj.get("user_metadata")
-        meta: dict = raw_meta if isinstance(raw_meta, dict) else {}
-        username = str(meta.get("username") or "").strip()
-        if not username:
-            username = clean_email.split("@")[0][:24]
+        return self._finalize_auth_session(res, clean_email)
 
-        self.set_session(access_token, refresh_token, uid, clean_email)
-        profile = self.load_profile(username)
-        return {
-            "username": profile["username"] if profile else username,
-            "email": clean_email,
-            "user_id": uid,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "profile": profile,
-        }
+    def request_login_otp(self, email: str, create_user: bool = True) -> None:
+        """Send a one-time login code / magic link to the player's email."""
+        clean_email = email.strip().lower()
+        if not clean_email or "@" not in clean_email or "." not in clean_email.split("@")[-1]:
+            raise SupabaseAuthError("Masukkan alamat email akunmu yang valid.")
+        redirect_q = urllib.parse.quote(self.redirect_url, safe="")
+        self._auth_request(
+            "POST",
+            f"/auth/v1/otp?redirect_to={redirect_q}",
+            payload={
+                "email": clean_email,
+                "create_user": create_user,
+            },
+            fallback_error="Gagal mengirim kode OTP ke email.",
+        )
+
+    def verify_login_otp(self, email: str, raw_input: str) -> dict:
+        """Verify a 6-digit email OTP code or a pasted Magic Link URL and sign in."""
+        clean_email = email.strip().lower()
+        text = raw_input.strip()
+        if not clean_email or "@" not in clean_email:
+            raise SupabaseAuthError("Masukkan alamat email akunmu yang valid.")
+        if not text:
+            raise SupabaseAuthError("Masukkan kode OTP atau klik tautan masuk di emailmu.")
+
+        # Case 1: Full URL or fragment pasted from email
+        if "://" in text or "access_token=" in text or "token=" in text or "token_hash=" in text:
+            parsed = urllib.parse.urlparse(text)
+            frag = urllib.parse.parse_qs(parsed.fragment)
+            qs = urllib.parse.parse_qs(parsed.query)
+            acc = (frag.get("access_token") or qs.get("access_token") or [""])[0]
+            ref = (frag.get("refresh_token") or qs.get("refresh_token") or [""])[0]
+            if acc:
+                return self.complete_session_from_tokens(acc, ref, clean_email)
+            token_hash = (qs.get("token_hash") or frag.get("token_hash") or [""])[0]
+            token = (qs.get("token") or frag.get("token") or [""])[0]
+            url_type = (qs.get("type") or frag.get("type") or ["email"])[0]
+            candidate = token_hash or token
+            if candidate:
+                res = self._verify_otp_candidates(clean_email, candidate, preferred_type=url_type)
+                return self._finalize_auth_session(res, clean_email)
+
+        # Case 2: Numeric / short OTP code or token_hash
+        res = self._verify_otp_candidates(clean_email, text, preferred_type="email")
+        return self._finalize_auth_session(res, clean_email)
+
+    def _verify_otp_candidates(
+        self, email: str, token_value: str, preferred_type: str = "email"
+    ) -> dict:
+        types_order = []
+        for t in (preferred_type, "email", "magiclink", "signup"):
+            if t and t not in types_order:
+                types_order.append(t)
+
+        attempts: list[dict] = []
+        if len(token_value) <= 10:
+            for t in types_order:
+                attempts.append({"type": t, "email": email, "token": token_value})
+            attempts.append({"type": preferred_type or "email", "token_hash": token_value})
+        else:
+            for t in types_order:
+                attempts.append({"type": t, "token_hash": token_value})
+            attempts.append({"type": preferred_type or "email", "email": email, "token": token_value})
+
+        last_err: SupabaseAuthError | None = None
+        for body in attempts:
+            try:
+                res = self._auth_request(
+                    "POST",
+                    "/auth/v1/verify",
+                    payload=body,
+                    fallback_error="Kode OTP tidak valid atau sudah kedaluwarsa.",
+                )
+                if res.get("access_token"):
+                    return res
+            except SupabaseAuthError as err:
+                last_err = err
+        raise last_err or SupabaseAuthError("Kode OTP tidak valid atau sudah kedaluwarsa.")
+
+    def complete_session_from_tokens(
+        self, access_token: str, refresh_token: str = "", fallback_email: str = ""
+    ) -> dict:
+        """Complete login using an access_token captured from browser callback."""
+        if not access_token:
+            raise SupabaseAuthError("Token sesi tidak ditemukan.")
+        user_obj = self._auth_request(
+            "GET",
+            "/auth/v1/user",
+            bearer=access_token,
+            fallback_error="Gagal memuat data akun dari sesi OTP.",
+        )
+        return self._finalize_auth_session(
+            {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": user_obj,
+            },
+            fallback_email=fallback_email,
+        )
 
     def resend_confirmation(self, email: str) -> None:
         clean_email = email.strip().lower()
@@ -494,7 +777,6 @@ class SupabaseClient:
                 "Klik tautan di email terlebih dahulu, atau tempel kode OTP / tautan dari email."
             )
 
-        # Case 1: Full URL or fragment pasted from email / browser
         if "://" in text or "access_token=" in text or "token=" in text or "token_hash=" in text:
             parsed = urllib.parse.urlparse(text)
             frag = urllib.parse.parse_qs(parsed.fragment)
@@ -509,11 +791,9 @@ class SupabaseClient:
             if candidate:
                 return self._verify_token_hash_or_otp(clean_email, candidate)
 
-        # Case 2: Raw OTP code (e.g. 6-8 digits) or raw token_hash
         return self._verify_token_hash_or_otp(clean_email, text)
 
     def _verify_token_hash_or_otp(self, email: str, token_value: str) -> str:
-        # Short numeric/code -> try OTP with email first, else token_hash first
         attempts: list[dict] = []
         if len(token_value) <= 10 and email:
             attempts.append({"type": "recovery", "email": email, "token": token_value})
@@ -551,6 +831,118 @@ class SupabaseClient:
             bearer=access_token,
             fallback_error="Gagal memperbarui password.",
         )
+
+    def change_password_authenticated(self, new_password: str) -> None:
+        """Update password directly using the currently logged-in user's session."""
+        if len(new_password) < 6:
+            raise SupabaseAuthError("Password baru minimal 6 karakter.")
+        if not self.access_token and self.refresh_token:
+            self.refresh_auth_session()
+        if not self.access_token:
+            raise SupabaseAuthError(
+                "Sesi login aktif tidak ditemukan. Gunakan tombol Kirim Reset via Email."
+            )
+        try:
+            self.update_password(self.access_token, new_password)
+        except SupabaseAuthError as err:
+            if err.status == 401 and self.refresh_token and self.refresh_auth_session():
+                self.update_password(self.access_token, new_password)
+                return
+            raise
+
+    def update_profile_details(
+        self,
+        old_username: str,
+        new_username: str,
+        display_name: str,
+        bio: str,
+        avatar: int,
+        state: dict,
+    ) -> dict:
+        """Update detective profile fields in both Supabase Auth metadata & player_profiles."""
+        clean_new = new_username.strip()
+        clean_old = old_username.strip()
+        clean_disp = display_name.strip()[:40]
+        clean_bio = bio.strip()[:140]
+        clean_avatar = max(0, min(3, int(avatar)))
+
+        if not clean_new:
+            raise SupabaseAuthError("Username tidak boleh kosong.")
+        if len(clean_new) > 24:
+            raise SupabaseAuthError("Username maksimal 24 karakter.")
+
+        uid = str(self.user_id or state.get("user_id") or "").strip()
+        email = str(self.user_email or state.get("email") or "").strip().lower()
+
+        if self.enabled:
+            if self.username_taken_by_other(clean_new, current_user_id=uid, old_username=clean_old):
+                raise SupabaseAuthError(
+                    "Username sudah digunakan detektif lain. Pilih username berbeda."
+                )
+
+            if self.access_token or (self.refresh_token and self.refresh_auth_session()):
+                try:
+                    self._auth_request(
+                        "PUT",
+                        "/auth/v1/user",
+                        payload={
+                            "data": {
+                                "username": clean_new,
+                                "display_name": clean_disp,
+                                "bio": clean_bio,
+                            }
+                        },
+                        bearer=self.access_token,
+                        fallback_error="Gagal memperbarui metadata profil.",
+                    )
+                except SupabaseAuthError as err:
+                    _LOG.warning("Auth user_metadata update skipped: %s", err)
+
+            patch_payload: dict = {
+                "username": clean_new,
+                "display_name": clean_disp,
+                "bio": clean_bio,
+                "avatar": clean_avatar,
+            }
+            if email:
+                patch_payload["email"] = email
+            if uid:
+                patch_payload["user_id"] = uid
+
+            updated_in_place = False
+            try:
+                if uid:
+                    uid_q = urllib.parse.quote(uid, safe="")
+                    rows = self._request(
+                        "PATCH",
+                        f"/rest/v1/player_profiles?user_id=eq.{uid_q}",
+                        payload=patch_payload,
+                        extra_headers={"Prefer": "return=representation"},
+                    )
+                    updated_in_place = isinstance(rows, list) and len(rows) > 0
+                if not updated_in_place and clean_old:
+                    old_q = urllib.parse.quote(clean_old.casefold(), safe="")
+                    rows = self._request(
+                        "PATCH",
+                        f"/rest/v1/player_profiles?username_lower=eq.{old_q}",
+                        payload=patch_payload,
+                        extra_headers={"Prefer": "return=representation"},
+                    )
+                    updated_in_place = isinstance(rows, list) and len(rows) > 0
+            except (urllib.error.URLError, TimeoutError, ValueError) as err:
+                _LOG.warning("Profile PATCH fallback to upsert: %s", err)
+
+            if not updated_in_place:
+                merged = dict(state)
+                merged.update(patch_payload)
+                self.save_profile(merged)
+
+        return {
+            "username": clean_new,
+            "display_name": clean_disp,
+            "bio": clean_bio,
+            "avatar": clean_avatar,
+        }
 
     def refresh_auth_session(self) -> bool:
         if not self.enabled or not self.refresh_token:
@@ -650,21 +1042,7 @@ class SupabaseClient:
                 f"/rest/v1/player_profiles?username_lower=eq.{encoded}&limit=1",
             )
             if isinstance(rows, list) and rows:
-                row = rows[0]
-                return {
-                    "username": row.get("username", clean),
-                    "xp": int(row.get("xp", 0)),
-                    "avatar": int(row.get("avatar", 0)),
-                    "language": row.get("language", "id"),
-                    "music": bool(row.get("music", True)),
-                    "sound": bool(row.get("sound", True)),
-                    "seen": bool(row.get("seen", False)),
-                    "query_runs": int(row.get("query_runs", 0)),
-                    "done": row.get("done") or [],
-                    "progress": row.get("progress") or [],
-                    "read": row.get("read_lessons") or {},
-                    "got": row.get("got_evidence") or {},
-                }
+                return _row_to_profile(rows[0], clean)
         except (urllib.error.URLError, TimeoutError, ValueError, TypeError) as err:
             _LOG.warning("Could not load profile from Supabase: %s", err)
         return None
@@ -674,8 +1052,12 @@ class SupabaseClient:
         username = str(state.get("username", "")).strip()
         if not self.enabled or not username:
             return False
-        payload = {
+        uid = str(self.user_id or state.get("user_id") or "").strip()
+        email = str(self.user_email or state.get("email") or "").strip().lower()
+        payload: dict = {
             "username": username,
+            "display_name": str(state.get("display_name") or "").strip()[:40],
+            "bio": str(state.get("bio") or "").strip()[:140],
             "xp": max(0, int(state.get("xp", 0))),
             "avatar": int(state.get("avatar", 0)),
             "language": "en" if state.get("language") == "en" else "id",
@@ -688,11 +1070,16 @@ class SupabaseClient:
             "read_lessons": dict(state.get("read") or {}),
             "got_evidence": dict(state.get("got") or {}),
         }
+        if email:
+            payload["email"] = email
+        if uid:
+            payload["user_id"] = uid
+        conflict_col = "user_id" if uid else "username_lower"
         try:
             with self._lock:
                 self._request(
                     "POST",
-                    "/rest/v1/player_profiles?on_conflict=username_lower",
+                    f"/rest/v1/player_profiles?on_conflict={conflict_col}",
                     payload=payload,
                     extra_headers={
                         "Prefer": "resolution=merge-duplicates,return=minimal",
@@ -707,6 +1094,10 @@ class SupabaseClient:
         """Sync profile in the background so UI interactions stay responsive."""
         snapshot = {
             "username": state.get("username", ""),
+            "email": state.get("email", ""),
+            "user_id": state.get("user_id", ""),
+            "display_name": state.get("display_name", ""),
+            "bio": state.get("bio", ""),
             "xp": state.get("xp", 0),
             "avatar": state.get("avatar", 0),
             "language": state.get("language", "id"),

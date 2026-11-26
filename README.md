@@ -34,9 +34,10 @@ bisa diaktifkan atau dimatikan melalui menu Pengaturan.
 
 Edisi native terhubung ke **Supabase** (`https://dgpnfsdvypvgfnddpfel.supabase.co`) melalui `native-python/supabase_client.py` dan konfigurasi di `native-python/data/supabase_config.json` (dapat di-override dengan environment variable `SUPABASE_URL` dan `SUPABASE_KEY`):
 
-- **Autentikasi Akun (Supabase Auth)**: Dilengkapi layar **Login** (`Login.exe`), **Sign Up** (`SignUp.exe`), **Konfirmasi Pembuatan Akun** (`Alert.exe`), dan **Reset Password** (`ResetPassword.exe`) bergaya Neo-Brutalist seragam. Mendukung deteksi tautan verifikasi/pemulihan email otomatis via listener lokal `localhost:3000` maupun input kode OTP / tautan manual.
+- **Autentikasi Akun (Supabase Auth — OTP & Password)**: Dilengkapi layar **Login** (`Login.exe`, dengan **Login OTP** sebagai metode utama dan tab **Password** sebagai opsi alternatif), **Sign Up** (`SignUp.exe`), **Konfirmasi Pembuatan Akun** (`Alert.exe`), serta **Reset Password** (`ResetPassword.exe` maupun langsung dari jendela **Profil**). Mendukung deteksi tautan verifikasi/OTP email otomatis via listener lokal `localhost:3000` maupun input kode OTP 6 digit (`{{ .Token }}` pada template email Magic Link Supabase).
+- **Edit Profil & Simpanan Game (Export / Import)**: Di dalam jendela **Profil** pemain dapat mengubah *Username*, *Nama Tampilan*, *Bio/Motto*, dan *Karakter*, mengubah/mereset *Password*, serta melakukan **Export Save** dan **Import Save** berformat `.json` (tersedia juga di jendela **Pengaturan**) yang langsung tersinkron ke Supabase.
 - **Konten Game & Progres Cloud**: Materi panduan (`game_lessons`), 11 level kasus (`game_levels`), dan wallpaper (`game_config`) dimuat dari Supabase dengan fallback otomatis ke `native-python/data/game_data.json` bila offline. Progres pemain tersimpan di tabel `player_profiles` sekaligus di-cache lokal pada `%APPDATA%\Detektif Siber\Detektif Siber\progress.json`.
-- **Migrasi Skema**: Definisi lengkap tabel dan kebijakan RLS tersedia di `supabase/migrations/20261126000000_detektif_siber_schema.sql`.
+- **Migrasi Skema**: Definisi lengkap tabel dan kebijakan RLS tersedia di folder `supabase/migrations/`.
 
 ### Dependensi desktop
 

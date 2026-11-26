@@ -17,6 +17,7 @@ import re
 import struct
 import sys
 import wave
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, NoReturn
 
@@ -55,6 +56,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QCompleter,
+    QFileDialog,
     QFrame,
     QGraphicsDropShadowEffect,
     QHBoxLayout,
@@ -1839,6 +1841,8 @@ class Desk(QWidget):
             if item is not None:
                 widget = item.widget()
                 if widget is not None:
+                    widget.hide()
+                    widget.setParent(None)
                     widget.deleteLater()
         position = 0
         for win in self.windows.values():
@@ -2350,6 +2354,46 @@ EN.update({
     "Password berhasil diperbarui! Silakan masuk.": "Password updated! Please sign in.",
     "Berhasil keluar dari akun.": "Signed out successfully.",
     "Memproses...": "Processing...",
+    "Masuk dengan OTP": "Sign in with OTP",
+    "Password": "Password",
+    "Email akun detektif": "Detective account email",
+    "Masuk cepat tanpa password melalui kode OTP sekali pakai ke emailmu.":
+        "Quick passwordless sign-in via a one-time code sent to your email.",
+    "Kirim Kode OTP": "Send OTP Code",
+    "Sudah punya kode OTP? Masukkan kode ▸": "Already have an OTP code? Enter code ▸",
+    "Kode OTP (6 digit) atau tautan email": "OTP code (6 digits) or email link",
+    "Verifikasi Kode OTP": "Verify OTP Code",
+    "Kirim Ulang OTP": "Resend OTP",
+    "← Ganti Email": "← Change Email",
+    "Kode OTP telah dikirim ke emailmu!": "OTP code sent to your email!",
+    "Masukkan kode OTP terlebih dahulu.": "Enter the OTP code first.",
+    "Edit Profil": "Edit Profile",
+    "Reset Password": "Reset Password",
+    "Edit Profil Detektif": "Edit Detective Profile",
+    "Reset / Ubah Password": "Reset / Change Password",
+    "Nama Tampilan": "Display Name",
+    "Nama lengkap / panggilan (opsional)": "Full name / nickname (optional)",
+    "Bio / Motto Detektif": "Detective Bio / Motto",
+    "Motto investigasimu (tampil di kartu profil)": "Your motto (shown on profile card)",
+    "Simpan Profil": "Save Profile",
+    "Batal": "Cancel",
+    "Profil berhasil diperbarui!": "Profile updated successfully!",
+    "Password akun berhasil diperbarui!": "Account password updated successfully!",
+    "Kirim Reset ke Email": "Send Reset Email",
+    "Layar Verifikasi Reset ▸": "Open Reset Verification ▸",
+    "Ubah password akunmu langsung di sini, atau kirim tautan pemulihan ke email terdaftar.":
+        "Change your account password directly here, or send a recovery link to your email.",
+    "Sesi cloud tidak aktif. Kirim tautan reset password ke email terdaftar untuk mengatur ulang sandi.":
+        "Cloud session inactive. Send a reset link to your registered email to set a new password.",
+    "Simpanan Game": "Save Data",
+    "Export Save": "Export Save",
+    "Import Save": "Import Save",
+    "Save game berhasil diekspor!": "Save game exported successfully!",
+    "Save game berhasil diimpor!": "Save game imported successfully!",
+    "Gagal mengekspor save game.": "Could not export save game.",
+    "File save tidak valid atau rusak.": "Invalid or corrupted save file.",
+    "Akun Email:": "Account Email:",
+    "Username tidak boleh kosong.": "Username cannot be empty.",
 })
 
 SHIELD_SVG = (
@@ -2533,6 +2577,9 @@ class NativeGame(QMainWindow):
         self.state = {
             "username": "",
             "email": "",
+            "user_id": "",
+            "display_name": "",
+            "bio": "",
             "xp": 0,
             "done": [],
             "read": {},
@@ -2623,6 +2670,218 @@ class NativeGame(QMainWindow):
             logging.getLogger(__name__).exception("Could not save local progress: %s", error)
         if self.state.get("username"):
             self.supabase.save_profile_async(self.state)
+
+    def _refresh_open_desk_after_state_change(self) -> None:
+        desk = self.shell.desk
+        if desk is None or desk.mode != "desk":
+            return
+
+        def replace_content(key: str, content: QWidget) -> None:
+            win = desk.windows.get(key)
+            if win is None:
+                return
+            old = win.content_scroll.takeWidget()
+            win.content = content
+            win.content_scroll.setWidget(content)
+            if old is not None:
+                old.deleteLater()
+            win.fit_height()
+
+        replace_content("profil", self.profile_panel())
+        replace_content("set", self.settings_panel())
+        if getattr(self, "in_case", False) and 0 <= self.active_level < len(self.levels):
+            saved_step = int(self.state.get("progress", [0] * len(self.levels))[self.active_level] or 0)
+            self.step = max(0, min(saved_step, len(getattr(self, "tasks", []))))
+            raw_got = self.state.get("got", {}).get(str(self.active_level), {})
+            self.got = {}
+            if isinstance(raw_got, dict):
+                for k, v in raw_got.items():
+                    try:
+                        idx = int(k)
+                    except (TypeError, ValueError):
+                        continue
+                    if 0 <= idx < self.step:
+                        self.got[idx] = str(v)
+            self.refresh_tasks()
+            self.refresh_board()
+            self.refresh_case_status()
+            desk.set_status(
+                self.case_status_text(),
+                f"{int(self.state.get('xp', 0))} XP · {self.rank()}",
+                f"← {self.t('Desktop')}", self.home)
+        else:
+            replace_content("kasus", self.level_list_panel())
+            desk.set_status(
+                f"{self.t('Kasus')} {self.done_count()}/{len(self.levels)}",
+                f"{int(self.state.get('xp', 0))} XP · {self.rank()}",
+                f"← {self.t('Layar Awal')}", self.landing,
+                f"{self.t('Kasus selesai:')} {self.done_count()}/{len(self.levels)}")
+
+    def export_save_game(self, file_path: str | Path | None = None) -> bool:
+        """Export the player's save state & progress to a portable JSON file."""
+        if isinstance(file_path, bool):
+            file_path = None
+        if file_path is None:
+            safe_name = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(self.state.get("username") or "detektif"))
+            default_file = str(Path.home() / f"detektif-siber-{safe_name}-save.json")
+            selected, _ = QFileDialog.getSaveFileName(
+                self,
+                self.t("Export Save"),
+                default_file,
+                "Detektif Siber Save (*.json);;All Files (*)",
+            )
+            if not selected:
+                return False
+            target = Path(selected)
+        else:
+            target = Path(file_path)
+
+        payload = {
+            "app": "Detektif Siber",
+            "format_version": 1,
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "profile": {
+                "username": str(self.state.get("username") or ""),
+                "display_name": str(self.state.get("display_name") or ""),
+                "bio": str(self.state.get("bio") or ""),
+                "avatar": int(self.state.get("avatar", 0) or 0),
+                "xp": max(0, int(self.state.get("xp", 0) or 0)),
+                "language": "en" if self.state.get("language") == "en" else "id",
+                "music": bool(self.state.get("music", True)),
+                "sound": bool(self.state.get("sound", True)),
+                "seen": bool(self.state.get("seen", False)),
+                "query_runs": max(0, int(self.state.get("query_runs", 0) or 0)),
+                "done": list(self.state.get("done") or []),
+                "progress": list(self.state.get("progress") or []),
+                "read": dict(self.state.get("read") or {}),
+                "got": dict(self.state.get("got") or {}),
+            },
+        }
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            self.audio.play(780)
+            self.toast("Save game berhasil diekspor!")
+            return True
+        except OSError as err:
+            logging.getLogger(__name__).warning("Export save failed: %s", err)
+            self.audio.play(180)
+            self.toast("Gagal mengekspor save game.", True)
+            return False
+
+    def import_save_game(self, file_path: str | Path | None = None) -> bool:
+        """Import a Detektif Siber save JSON file, validate it, and sync to Supabase."""
+        if isinstance(file_path, bool):
+            file_path = None
+        if file_path is None:
+            selected, _ = QFileDialog.getOpenFileName(
+                self,
+                self.t("Import Save"),
+                str(Path.home()),
+                "Detektif Siber Save (*.json);;All Files (*)",
+            )
+            if not selected:
+                return False
+            source = Path(selected)
+        else:
+            source = Path(file_path)
+
+        try:
+            raw = json.loads(source.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            self.audio.play(180)
+            self.toast("File save tidak valid atau rusak.", True)
+            return False
+
+        if not isinstance(raw, dict):
+            self.audio.play(180)
+            self.toast("File save tidak valid atau rusak.", True)
+            return False
+
+        data = raw.get("profile") if isinstance(raw.get("profile"), dict) else raw
+        known_keys = {"xp", "done", "progress", "read", "got", "avatar", "query_runs"}
+        if not isinstance(data, dict) or not (known_keys & set(data.keys())):
+            self.audio.play(180)
+            self.toast("File save tidak valid atau rusak.", True)
+            return False
+
+        n = len(self.levels)
+        try:
+            xp = max(0, int(data.get("xp", self.state.get("xp", 0)) or 0))
+            avatar = max(0, min(len(AVS) - 1, int(data.get("avatar", self.state.get("avatar", 0)) or 0)))
+            qruns = max(0, int(data.get("query_runs", self.state.get("query_runs", 0)) or 0))
+        except (TypeError, ValueError):
+            self.audio.play(180)
+            self.toast("File save tidak valid atau rusak.", True)
+            return False
+
+        raw_done = data.get("done")
+        done = [bool(x) for x in raw_done] if isinstance(raw_done, list) else []
+        done = (done + [False] * n)[:n]
+
+        raw_prog = data.get("progress")
+        prog_list: list[int] = []
+        if isinstance(raw_prog, list):
+            for idx, item in enumerate(raw_prog[:n]):
+                max_steps = len(self.levels[idx].get("tk", [])) if idx < n else 0
+                try:
+                    val = max(0, min(max_steps, int(item or 0)))
+                except (TypeError, ValueError):
+                    val = 0
+                prog_list.append(val)
+        prog_list = (prog_list + [0] * n)[:n]
+
+        raw_read = data.get("read") if isinstance(data.get("read"), dict) else data.get("read_lessons")
+        clean_read: dict[str, int] = {}
+        if isinstance(raw_read, dict):
+            for k, v in raw_read.items():
+                if isinstance(k, str) and v:
+                    clean_read[k] = 1
+
+        raw_got = data.get("got") if isinstance(data.get("got"), dict) else data.get("got_evidence")
+        clean_got: dict[str, dict[str, str]] = {}
+        if isinstance(raw_got, dict):
+            for lvl_k, steps_map in raw_got.items():
+                if isinstance(steps_map, dict):
+                    clean_got[str(lvl_k)] = {
+                        str(sk): str(sv) for sk, sv in steps_map.items()
+                    }
+
+        # Preserve active logged-in account identity (username/email/user_id)
+        if not self.state.get("username") and isinstance(data.get("username"), str):
+            self.state["username"] = data["username"].strip()[:24]
+        if isinstance(data.get("display_name"), str) and data["display_name"].strip():
+            self.state["display_name"] = data["display_name"].strip()[:40]
+        if isinstance(data.get("bio"), str) and data["bio"].strip():
+            self.state["bio"] = data["bio"].strip()[:140]
+
+        self.state["xp"] = xp
+        self.state["avatar"] = avatar
+        self.state["query_runs"] = qruns
+        self.state["done"] = done
+        self.state["progress"] = prog_list
+        self.state["read"] = clean_read
+        self.state["got"] = clean_got
+        if "music" in data:
+            self.state["music"] = bool(data["music"])
+            self.audio.set_music_enabled(self.state["music"])
+        if "sound" in data:
+            self.state["sound"] = bool(data["sound"])
+            self.audio.set_sound_enabled(self.state["sound"])
+
+        prev_lang = self.state.get("language", "id")
+        new_lang = "en" if data.get("language") == "en" else ("id" if data.get("language") == "id" else prev_lang)
+
+        self.save()
+        if new_lang != prev_lang:
+            self.set_language(new_lang)
+        else:
+            self._refresh_open_desk_after_state_change()
+        self.audio.play(780)
+        self.toast("Save game berhasil diimpor!")
+        return True
 
     # -- small helpers ------------------------------------------------------
     def t(self, text: str) -> str:
@@ -2754,46 +3013,270 @@ class NativeGame(QMainWindow):
         )
         hard_shadow(btn, 4 if big else 3, 4 if big else 3)
 
-    # -- authentication screens (Login, Sign Up, Alert, Reset Password) -----
-    def show_login(self, prefill_email: str = "") -> None:
+    def _complete_login(self, auth_res: dict) -> None:
+        name = str(auth_res.get("username") or "Detektif")
+        old_name = str(self.state.get("username", ""))
+        remote = auth_res.get("profile")
+        if isinstance(remote, dict):
+            self.state.update(remote)
+            self._normalize_state()
+        elif old_name and name.casefold() != old_name.casefold():
+            self.reset_progress()
+        self.state["username"] = name
+        self.state["email"] = str(auth_res.get("email") or "")
+        self.state["user_id"] = str(auth_res.get("user_id") or "")
+        if "display_name" in auth_res:
+            self.state["display_name"] = str(auth_res.get("display_name") or "")
+        if "bio" in auth_res:
+            self.state["bio"] = str(auth_res.get("bio") or "")
+        self.state["seen"] = False
+        self.save()
+        self.audio.set_music_enabled(bool(self.state.get("music", True)))
+        self.toast(f"{self.t('Selamat datang,')} {name}.")
+        self.landing()
+
+    # -- authentication screens (Login OTP/Password, Sign Up, Alert, Reset) --
+    def show_login(
+        self,
+        prefill_email: str = "",
+        mode: str = "otp",
+        otp_sent: bool = False,
+    ) -> None:
+        if mode not in ("otp", "password"):
+            mode = "otp"
         self.setWindowTitle(self.t("Masuk"))
         page, box = screen_page()
         card = QWidget()
-        card.setFixedWidth(390)
+        card.setFixedWidth(420)
         col = QVBoxLayout(card)
         col.setContentsMargins(0, 4, 0, 8)
         col.setSpacing(10)
         col.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        col.addWidget(shield_label(58), 0, Qt.AlignmentFlag.AlignHCenter)
-        col.addWidget(brand_title(44, self.t("SIBER"), self.t("DETEKTIF")),
+        col.addWidget(shield_label(56), 0, Qt.AlignmentFlag.AlignHCenter)
+        col.addWidget(brand_title(42, self.t("SIBER"), self.t("DETEKTIF")),
                       0, Qt.AlignmentFlag.AlignHCenter)
         col.addWidget(label(self.t("Masuk untuk melanjutkan penyelidikan"), 14, False,
                             "#666", True, Qt.AlignmentFlag.AlignHCenter))
 
         initial_email = prefill_email or str(self.state.get("email", ""))
-        email_edit = line_edit("Email", initial_email)
+        email_edit = line_edit(self.t("Email akun detektif"), initial_email)
         email_edit.setMaxLength(80)
-        password_edit = line_edit("Password", "", password=True)
-        password_edit.setMaxLength(72)
-        col.addWidget(field_row("✉️", email_edit))
-        col.addWidget(field_row("🔑", password_edit, eye=True))
 
-        forgot_row = QHBoxLayout()
-        forgot_row.setContentsMargins(0, 0, 2, 0)
-        forgot_row.addStretch(1)
-        forgot_btn = button(
-            self.t("Lupa password?"),
-            lambda: self.show_reset_password(email_edit.text().strip()),
-            "link",
+        # Login method selector: OTP (Primary/Default) vs Password
+        mode_bar = QHBoxLayout()
+        mode_bar.setContentsMargins(0, 2, 0, 2)
+        mode_bar.setSpacing(8)
+        otp_tab = button(
+            f"🔢 {self.t('Masuk dengan OTP')}",
+            lambda: self.show_login(email_edit.text().strip(), mode="otp", otp_sent=False),
+            "primary" if mode == "otp" else "white",
             13,
             shadow=False,
         )
-        forgot_row.addWidget(forgot_btn)
-        col.addLayout(forgot_row)
+        pw_tab = button(
+            f"🔑 {self.t('Password')}",
+            lambda: self.show_login(email_edit.text().strip(), mode="password", otp_sent=False),
+            "primary" if mode == "password" else "white",
+            13,
+            shadow=False,
+        )
+        for tab_btn, active_tab in ((otp_tab, mode == "otp"), (pw_tab, mode == "password")):
+            bg = "#6cc4ff" if active_tab else "#fff"
+            tab_btn.setStyleSheet(
+                f"QPushButton{{background:{bg};color:#111;border:3px solid #111;"
+                "border-radius:0;padding:7px 12px;font-weight:800;}"
+                "QPushButton:hover{background:#fff1c1;}"
+            )
+            hard_shadow(tab_btn, 2, 2)
+        mode_bar.addWidget(otp_tab, 3)
+        mode_bar.addWidget(pw_tab, 2)
+        col.addLayout(mode_bar)
 
-        login_btn = button(self.t("Masuk"), None, "big", 21)
-        self._style_action_button(login_btn, primary=True, big=True)
-        col.addWidget(login_btn)
+        focus_target: QWidget = email_edit
+
+        if mode == "otp":
+            if not otp_sent:
+                col.addWidget(field_row("✉️", email_edit))
+                col.addWidget(label(
+                    self.t("Masuk cepat tanpa password melalui kode OTP sekali pakai ke emailmu."),
+                    12, False, "#666", True, Qt.AlignmentFlag.AlignHCenter,
+                ))
+                send_otp_btn = button(self.t("Kirim Kode OTP"), None, "big", 20)
+                self._style_action_button(send_otp_btn, primary=True, big=True)
+                col.addWidget(send_otp_btn)
+
+                have_otp_btn = button(
+                    self.t("Sudah punya kode OTP? Masukkan kode ▸"),
+                    lambda: self.show_login(email_edit.text().strip(), mode="otp", otp_sent=True),
+                    "link",
+                    12,
+                    shadow=False,
+                )
+                col.addWidget(have_otp_btn, 0, Qt.AlignmentFlag.AlignHCenter)
+
+                def submit_send_otp() -> None:
+                    mail = email_edit.text().strip()
+                    if not mail or "@" not in mail or "." not in mail.split("@")[-1]:
+                        self.toast("Masukkan alamat email akunmu yang valid.", True)
+                        email_edit.setFocus()
+                        return
+                    send_otp_btn.setEnabled(False)
+                    send_otp_btn.setText(self.t("Memproses..."))
+                    QApplication.processEvents()
+                    try:
+                        self.supabase.request_login_otp(mail)
+                    except SupabaseAuthError as err:
+                        self.audio.play(180)
+                        send_otp_btn.setEnabled(True)
+                        send_otp_btn.setText(self.t("Kirim Kode OTP"))
+                        self.toast(err.message, True)
+                        return
+                    self.audio.play(780)
+                    self.toast("Kode OTP telah dikirim ke emailmu!")
+                    self.show_login(mail, mode="otp", otp_sent=True)
+
+                send_otp_btn.clicked.connect(submit_send_otp)
+                email_edit.returnPressed.connect(submit_send_otp)
+                focus_target = email_edit
+            else:
+                target_mail = initial_email
+                info_card = QFrame()
+                info_card.setObjectName("otpInfoCard")
+                info_card.setStyleSheet(
+                    "QFrame#otpInfoCard{background:#e4f2ff;border:3px solid #111;}"
+                )
+                hard_shadow(info_card, 4, 4, alpha=160)
+                ic_box = QVBoxLayout(info_card)
+                ic_box.setContentsMargins(13, 9, 13, 9)
+                ic_box.setSpacing(3)
+                otp_msg = (
+                    f"📨 Kode dikirim ke <b>{esc(target_mail or 'emailmu')}</b>.<br>"
+                    "Masukkan 6 digit kode OTP, atau klik tautan masuk di emailmu:"
+                    if self.state.get("language") != "en"
+                    else f"📨 Code sent to <b>{esc(target_mail or 'your email')}</b>.<br>"
+                    "Enter the 6-digit OTP code, or click the sign-in link in your email:"
+                )
+                ic_box.addWidget(rich(otp_msg, 13))
+                col.addWidget(info_card)
+
+                if not target_mail:
+                    col.addWidget(field_row("✉️", email_edit))
+                otp_edit = line_edit(self.t("Kode OTP (6 digit) atau tautan email"))
+                otp_edit.setMaxLength(512)
+                col.addWidget(field_row("🔢", otp_edit))
+
+                verify_btn = button(self.t("Verifikasi Kode OTP"), None, "big", 20)
+                self._style_action_button(verify_btn, primary=True, big=True)
+                col.addWidget(verify_btn)
+
+                otp_links = QHBoxLayout()
+                otp_links.setSpacing(14)
+                otp_links.addStretch(1)
+                resend_otp_btn = button(
+                    self.t("Kirim Ulang OTP"), None, "link", 12, shadow=False
+                )
+                change_mail_btn = button(
+                    self.t("← Ganti Email"),
+                    lambda: self.show_login(target_mail, mode="otp", otp_sent=False),
+                    "link",
+                    12,
+                    shadow=False,
+                )
+                otp_links.addWidget(resend_otp_btn)
+                otp_links.addWidget(change_mail_btn)
+                otp_links.addStretch(1)
+                col.addLayout(otp_links)
+
+                def do_resend_otp() -> None:
+                    mail = target_mail or email_edit.text().strip()
+                    try:
+                        self.supabase.request_login_otp(mail)
+                        self.audio.play(780)
+                        self.toast("Kode OTP telah dikirim ke emailmu!")
+                    except SupabaseAuthError as err:
+                        self.audio.play(180)
+                        self.toast(err.message, True)
+
+                def submit_verify_otp() -> None:
+                    mail = target_mail or email_edit.text().strip()
+                    code = otp_edit.text().strip()
+                    if not mail:
+                        self.toast("Masukkan alamat email akunmu yang valid.", True)
+                        return
+                    if not code:
+                        self.toast("Masukkan kode OTP terlebih dahulu.", True)
+                        otp_edit.setFocus()
+                        return
+                    verify_btn.setEnabled(False)
+                    verify_btn.setText(self.t("Memproses..."))
+                    QApplication.processEvents()
+                    try:
+                        auth_res = self.supabase.verify_login_otp(mail, code)
+                    except SupabaseAuthError as err:
+                        self.audio.play(180)
+                        verify_btn.setEnabled(True)
+                        verify_btn.setText(self.t("Verifikasi Kode OTP"))
+                        self.toast(err.message, True)
+                        return
+                    self.audio.play(780)
+                    self._complete_login(auth_res)
+
+                resend_otp_btn.clicked.connect(do_resend_otp)
+                verify_btn.clicked.connect(submit_verify_otp)
+                otp_edit.returnPressed.connect(submit_verify_otp)
+                focus_target = otp_edit
+        else:
+            password_edit = line_edit("Password", "", password=True)
+            password_edit.setMaxLength(72)
+            col.addWidget(field_row("✉️", email_edit))
+            col.addWidget(field_row("🔑", password_edit, eye=True))
+
+            forgot_row = QHBoxLayout()
+            forgot_row.setContentsMargins(0, 0, 2, 0)
+            forgot_row.addStretch(1)
+            forgot_btn = button(
+                self.t("Lupa password?"),
+                lambda: self.show_reset_password(email_edit.text().strip()),
+                "link",
+                13,
+                shadow=False,
+            )
+            forgot_row.addWidget(forgot_btn)
+            col.addLayout(forgot_row)
+
+            login_btn = button(self.t("Masuk"), None, "big", 21)
+            self._style_action_button(login_btn, primary=True, big=True)
+            col.addWidget(login_btn)
+
+            def submit_password() -> None:
+                mail = email_edit.text().strip()
+                pw = password_edit.text()
+                if not mail:
+                    self.toast("Masukkan alamat email akunmu yang valid.", True)
+                    email_edit.setFocus()
+                    return
+                if not pw:
+                    self.toast("Masukkan password terlebih dahulu.", True)
+                    password_edit.setFocus()
+                    return
+                login_btn.setEnabled(False)
+                login_btn.setText(self.t("Memproses..."))
+                QApplication.processEvents()
+                try:
+                    auth_res = self.supabase.sign_in(mail, pw)
+                except SupabaseAuthError as err:
+                    self.audio.play(180)
+                    login_btn.setEnabled(True)
+                    login_btn.setText(self.t("Masuk"))
+                    self.toast(err.message, True)
+                    return
+                self.audio.play(780)
+                self._complete_login(auth_res)
+
+            login_btn.clicked.connect(submit_password)
+            email_edit.returnPressed.connect(submit_password)
+            password_edit.returnPressed.connect(submit_password)
+            focus_target = password_edit if initial_email else email_edit
 
         alt_row = QHBoxLayout()
         alt_row.setContentsMargins(0, 2, 0, 0)
@@ -2813,49 +3296,6 @@ class NativeGame(QMainWindow):
         col.addWidget(label(self.t(storage_note),
                             12, False, "#888", True, Qt.AlignmentFlag.AlignHCenter))
 
-        def submit() -> None:
-            mail = email_edit.text().strip()
-            pw = password_edit.text()
-            if not mail:
-                self.toast("Masukkan alamat email akunmu yang valid.", True)
-                email_edit.setFocus()
-                return
-            if not pw:
-                self.toast("Masukkan password terlebih dahulu.", True)
-                password_edit.setFocus()
-                return
-            login_btn.setEnabled(False)
-            login_btn.setText(self.t("Memproses..."))
-            QApplication.processEvents()
-            try:
-                auth_res = self.supabase.sign_in(mail, pw)
-            except SupabaseAuthError as err:
-                self.audio.play(180)
-                login_btn.setEnabled(True)
-                login_btn.setText(self.t("Masuk"))
-                self.toast(err.message, True)
-                return
-
-            name = auth_res["username"]
-            old_name = str(self.state.get("username", ""))
-            remote = auth_res.get("profile")
-            if isinstance(remote, dict):
-                self.state.update(remote)
-                self._normalize_state()
-            elif old_name and name.casefold() != old_name.casefold():
-                self.reset_progress()
-            self.state["username"] = name
-            self.state["email"] = auth_res["email"]
-            self.state["seen"] = False
-            self.save()
-            self.audio.set_music_enabled(bool(self.state.get("music", True)))
-            self.toast(f"{self.t('Selamat datang,')} {name}.")
-            self.landing()
-
-        login_btn.clicked.connect(submit)
-        email_edit.returnPressed.connect(submit)
-        password_edit.returnPressed.connect(submit)
-
         wrap = QHBoxLayout()
         wrap.addStretch(1)
         wrap.addWidget(card)
@@ -2864,10 +3304,48 @@ class NativeGame(QMainWindow):
         box.addLayout(wrap)
         box.addStretch(1)
         self.show_screen(page, "🔐 Login.exe", "login")
-        QTimer.singleShot(
-            50,
-            password_edit.setFocus if initial_email else email_edit.setFocus,
-        )
+
+        if mode == "otp" and otp_sent:
+            if self.supabase.callback_listener.start():
+                timer = QTimer(self)
+                timer.setInterval(400)
+
+                def poll_otp_callback() -> None:
+                    captured = self.supabase.callback_listener.poll()
+                    if not captured:
+                        return
+                    if captured.get("error") or captured.get("error_description"):
+                        self.toast(
+                            str(captured.get("error_description") or captured.get("error")),
+                            True,
+                        )
+                        return
+                    acc = str(captured.get("access_token") or "")
+                    ref = str(captured.get("refresh_token") or "")
+                    th = str(captured.get("token_hash") or captured.get("token") or "")
+                    try:
+                        if acc:
+                            auth_res = self.supabase.complete_session_from_tokens(
+                                acc, ref, initial_email
+                            )
+                        elif th:
+                            auth_res = self.supabase.verify_login_otp(
+                                initial_email, f"token_hash={th}&type={captured.get('type', 'email')}"
+                            )
+                        else:
+                            return
+                    except SupabaseAuthError as err:
+                        self.toast(err.message, True)
+                        return
+                    self.audio.play(780)
+                    self._stop_auth_poll()
+                    self._complete_login(auth_res)
+
+                timer.timeout.connect(poll_otp_callback)
+                timer.start()
+                self._auth_poll_timer = timer
+
+        QTimer.singleShot(50, focus_target.setFocus)
 
     def show_signup(self) -> None:
         self.setWindowTitle(self.t("Daftar"))
@@ -3614,7 +4092,7 @@ class NativeGame(QMainWindow):
         desk.add_window("edu", "buku-panduan", self.t("Buku Panduan"),
                         self.book_panel(list(self.lessons.keys())), 160, 260, 460)
         desk.add_window("profil", "profil", self.t("Profil"),
-                        self.profile_panel(), 156, 50, 520)
+                        self.profile_panel(), 156, 40, 560)
         desk.add_window("set", "pengaturan", self.t("Pengaturan"),
                         self.settings_panel(), 190, 70, 470)
         desk.open_window("halo")
@@ -3740,8 +4218,8 @@ class NativeGame(QMainWindow):
         tabs.setWidget(tab_inner)
         return root
 
-    # -- profile ------------------------------------------------------------
-    def profile_panel(self) -> QWidget:
+    # -- profile (Overview, Edit Profile, Reset Password, Save Export/Import) --
+    def profile_panel(self, initial_tab: str = "overview") -> QWidget:
         root = QWidget()
         outer = QHBoxLayout(root)
         outer.setContentsMargins(8, 8, 8, 8)
@@ -3749,16 +4227,29 @@ class NativeGame(QMainWindow):
         main = QWidget()
         main_box = QVBoxLayout(main)
         main_box.setContentsMargins(0, 0, 0, 0)
-        main_box.setSpacing(3)
+        main_box.setSpacing(5)
         side = QFrame()
         side.setObjectName("profileSide")
-        side.setFixedWidth(140)
+        side.setFixedWidth(144)
         side.setStyleSheet("QFrame#profileSide{background:#fff1c1;border:3px solid #111;}")
         side_box = QVBoxLayout(side)
         side_box.setContentsMargins(9, 11, 9, 11)
-        side_box.setSpacing(2)
+        side_box.setSpacing(4)
         outer.addWidget(main, 1)
         outer.addWidget(side, 0)
+
+        view_state = {"tab": initial_tab if initial_tab in ("overview", "edit", "password") else "overview"}
+
+        def refit_window() -> None:
+            desk = self.shell.desk
+            win = desk.windows.get("profil") if desk is not None else None
+            if win is not None:
+                QTimer.singleShot(0, win.fit_height)
+
+        def switch_tab(tab_name: str) -> None:
+            view_state["tab"] = tab_name
+            rebuild()
+            refit_window()
 
         def rebuild() -> None:
             clear_layout(main_box)
@@ -3768,29 +4259,273 @@ class NativeGame(QMainWindow):
             xp = int(self.state.get("xp", 0))
             fraction = xp % 300
             avatar = int(self.state.get("avatar", 0))
+            uname = str(self.state.get("username") or "Detektif")
+            disp = str(self.state.get("display_name") or "").strip()
+            bio_text = str(self.state.get("bio") or "").strip()
+            mail = str(self.state.get("email") or "").strip()
+
+            # Right yellow sidebar (always visible)
+            side_box.addWidget(label(self.t("Total XP"), 11, False, INK,
+                                     align=Qt.AlignmentFlag.AlignHCenter))
+            total = label(f"★ {xp}", 25, True, INK, align=Qt.AlignmentFlag.AlignHCenter)
+            side_box.addWidget(total)
+            side_box.addWidget(spacer(6))
+            motto = (
+                f"“{bio_text}”"
+                if bio_text
+                else self.t("Langkah kecil adalah bagian dari solusi besar.")
+            )
+            quote = label(motto, 12, False, INK, True, Qt.AlignmentFlag.AlignHCenter, True)
+            side_box.addWidget(quote)
+            side_box.addStretch(1)
+
+            if view_state["tab"] == "edit":
+                hdr = QHBoxLayout()
+                hdr.addWidget(label(f"✏️ {self.t('Edit Profil Detektif')}", 16, True, INK), 1)
+                back_btn = button(f"← {self.t('Kembali')}", lambda: switch_tab("overview"), "white", 11)
+                hdr.addWidget(back_btn)
+                main_box.addLayout(hdr)
+
+                form_card = QFrame()
+                form_card.setObjectName("profileFormCard")
+                form_card.setStyleSheet(
+                    "QFrame#profileFormCard{background:#fff;border:2px solid #111;}"
+                )
+                fc_box = QVBoxLayout(form_card)
+                fc_box.setContentsMargins(10, 9, 10, 10)
+                fc_box.setSpacing(6)
+
+                fc_box.addWidget(label("Username", 12, True, INK))
+                un_edit = line_edit("Username", uname)
+                un_edit.setMaxLength(24)
+                fc_box.addWidget(un_edit)
+
+                fc_box.addWidget(label(self.t("Nama Tampilan"), 12, True, INK))
+                dn_edit = line_edit(self.t("Nama lengkap / panggilan (opsional)"), disp)
+                dn_edit.setMaxLength(40)
+                fc_box.addWidget(dn_edit)
+
+                fc_box.addWidget(label(self.t("Bio / Motto Detektif"), 12, True, INK))
+                bio_edit = line_edit(
+                    self.t("Motto investigasimu (tampil di kartu profil)"), bio_text
+                )
+                bio_edit.setMaxLength(140)
+                fc_box.addWidget(bio_edit)
+
+                fc_box.addWidget(label(self.t("Karakter"), 12, True, INK))
+                av_pick_state = {"av": avatar}
+                av_row = QHBoxLayout()
+                av_row.setSpacing(4)
+                av_btns: list[AvatarButton] = []
+
+                def pick_av(idx: int) -> None:
+                    av_pick_state["av"] = idx
+                    for p, b in enumerate(av_btns):
+                        b.setChecked(p == idx)
+
+                for i in range(len(AVS)):
+                    ab = AvatarButton(i, 44)
+                    ab.setChecked(i == avatar)
+                    ab.clicked.connect(lambda _, x=i: pick_av(x))
+                    av_btns.append(ab)
+                    av_row.addWidget(ab)
+                av_row.addStretch(1)
+                fc_box.addLayout(av_row)
+
+                if mail:
+                    fc_box.addWidget(label(
+                        f"✉️ {self.t('Akun Email:')} {mail}", 11, False, "#5b5f8f", True
+                    ))
+
+                main_box.addWidget(form_card)
+
+                btn_row = QHBoxLayout()
+                btn_row.setSpacing(6)
+                save_prof_btn = button(f"💾 {self.t('Simpan Profil')}", None, "primary", 12)
+                cancel_btn = button(self.t("Batal"), lambda: switch_tab("overview"), "white", 12)
+                btn_row.addWidget(save_prof_btn)
+                btn_row.addWidget(cancel_btn)
+                btn_row.addStretch(1)
+                main_box.addLayout(btn_row)
+                main_box.addStretch(1)
+
+                def save_profile_edits() -> None:
+                    new_un = un_edit.text().strip()
+                    new_dn = dn_edit.text().strip()
+                    new_bio = bio_edit.text().strip()
+                    new_av = av_pick_state["av"]
+                    if not new_un:
+                        self.toast("Username tidak boleh kosong.", True)
+                        un_edit.setFocus()
+                        return
+                    save_prof_btn.setEnabled(False)
+                    save_prof_btn.setText(self.t("Memproses..."))
+                    QApplication.processEvents()
+                    try:
+                        updated = self.supabase.update_profile_details(
+                            old_username=uname,
+                            new_username=new_un,
+                            display_name=new_dn,
+                            bio=new_bio,
+                            avatar=new_av,
+                            state=self.state,
+                        )
+                    except SupabaseAuthError as err:
+                        self.audio.play(180)
+                        save_prof_btn.setEnabled(True)
+                        save_prof_btn.setText(f"💾 {self.t('Simpan Profil')}")
+                        self.toast(err.message, True)
+                        return
+
+                    self.state["username"] = updated["username"]
+                    self.state["display_name"] = updated["display_name"]
+                    self.state["bio"] = updated["bio"]
+                    self.state["avatar"] = updated["avatar"]
+                    self.save()
+                    self.audio.play(780)
+                    self.toast("Profil berhasil diperbarui!")
+                    switch_tab("overview")
+
+                save_prof_btn.clicked.connect(save_profile_edits)
+                un_edit.returnPressed.connect(save_profile_edits)
+                dn_edit.returnPressed.connect(save_profile_edits)
+                bio_edit.returnPressed.connect(save_profile_edits)
+                return
+
+            if view_state["tab"] == "password":
+                hdr = QHBoxLayout()
+                hdr.addWidget(label(f"🔑 {self.t('Reset / Ubah Password')}", 16, True, INK), 1)
+                back_btn = button(f"← {self.t('Kembali')}", lambda: switch_tab("overview"), "white", 11)
+                hdr.addWidget(back_btn)
+                main_box.addLayout(hdr)
+
+                has_sess = self.supabase.has_active_session
+                banner = QFrame()
+                banner.setObjectName("pwBanner")
+                banner.setStyleSheet("QFrame#pwBanner{background:#e4f2ff;border:2px solid #111;}")
+                bb = QVBoxLayout(banner)
+                bb.setContentsMargins(10, 8, 10, 8)
+                info_txt = (
+                    self.t("Ubah password akunmu langsung di sini, atau kirim tautan pemulihan ke email terdaftar.")
+                    if has_sess
+                    else self.t("Sesi cloud tidak aktif. Kirim tautan reset password ke email terdaftar untuk mengatur ulang sandi.")
+                )
+                bb.addWidget(label(info_txt, 12, False, INK, True))
+                main_box.addWidget(banner)
+
+                pw1 = line_edit(self.t("Password Baru (min. 6 karakter)"), "", password=True)
+                pw1.setMaxLength(72)
+                pw2 = line_edit(self.t("Konfirmasi Password Baru"), "", password=True)
+                pw2.setMaxLength(72)
+                r1 = field_row("🔑", pw1, eye=True)
+                r2 = field_row("🔒", pw2, eye=True)
+                r1.setEnabled(has_sess)
+                r2.setEnabled(has_sess)
+                main_box.addWidget(r1)
+                main_box.addWidget(r2)
+
+                pw_actions = QHBoxLayout()
+                pw_actions.setSpacing(6)
+                save_pw_btn = button(self.t("Simpan Password Baru"), None, "primary", 12)
+                save_pw_btn.setEnabled(has_sess)
+                pw_actions.addWidget(save_pw_btn)
+                if mail:
+                    email_rst_btn = button(
+                        f"📨 {self.t('Kirim Reset ke Email')}", None, "white", 12
+                    )
+                    pw_actions.addWidget(email_rst_btn)
+
+                    def send_reset_mail() -> None:
+                        try:
+                            self.supabase.request_password_reset(mail)
+                            self.audio.play(780)
+                            self.toast("Email pemulihan telah dikirim. Cek kotak masuk emailmu.")
+                        except SupabaseAuthError as err:
+                            self.audio.play(180)
+                            self.toast(err.message, True)
+
+                    email_rst_btn.clicked.connect(send_reset_mail)
+                pw_actions.addStretch(1)
+                main_box.addLayout(pw_actions)
+
+                if mail:
+                    open_full_rst = button(
+                        self.t("Layar Verifikasi Reset ▸"),
+                        lambda: self.show_reset_password(mail, "confirm"),
+                        "link",
+                        12,
+                        shadow=False,
+                    )
+                    main_box.addWidget(open_full_rst, 0, Qt.AlignmentFlag.AlignLeft)
+
+                main_box.addStretch(1)
+
+                def save_new_pw() -> None:
+                    npw = pw1.text()
+                    cpw = pw2.text()
+                    if len(npw) < 6:
+                        self.toast("Password baru minimal 6 karakter.", True)
+                        pw1.setFocus()
+                        return
+                    if npw != cpw:
+                        self.toast("Konfirmasi password tidak cocok.", True)
+                        pw2.setFocus()
+                        return
+                    save_pw_btn.setEnabled(False)
+                    save_pw_btn.setText(self.t("Memproses..."))
+                    QApplication.processEvents()
+                    try:
+                        self.supabase.change_password_authenticated(npw)
+                    except SupabaseAuthError as err:
+                        self.audio.play(180)
+                        save_pw_btn.setEnabled(True)
+                        save_pw_btn.setText(self.t("Simpan Password Baru"))
+                        self.toast(err.message, True)
+                        return
+                    self.audio.play(780)
+                    self.toast("Password akun berhasil diperbarui!")
+                    switch_tab("overview")
+
+                save_pw_btn.clicked.connect(save_new_pw)
+                pw1.returnPressed.connect(save_new_pw)
+                pw2.returnPressed.connect(save_new_pw)
+                return
+
+            # Default tab: "overview"
             head = QWidget()
             hb = QHBoxLayout(head)
-            hb.setContentsMargins(0, 0, 0, 6)
+            hb.setContentsMargins(0, 0, 0, 4)
             hb.setSpacing(13)
             avatar_view = AvatarView(avatar, 84)
             hb.addWidget(avatar_view, 0, Qt.AlignmentFlag.AlignTop)
             info = QVBoxLayout()
             info.setContentsMargins(0, 0, 0, 0)
             info.setSpacing(1)
-            name = label(self.state.get("username") or "Detektif", 21, True, INK, True)
-            info.addWidget(name)
-            if self.state.get("email"):
-                info.addWidget(label(str(self.state["email"]), 12, False, "#5b5f8f"))
-            info.addWidget(label(rank, 14, False, "#666"))
-            info.addWidget(label(f"Level {1 + xp // 300}", 15, True, INK))
+            primary_name = disp if disp else uname
+            info.addWidget(label(primary_name, 20, True, INK, True))
+            sub_id = f"@{uname}" + (f" · {mail}" if mail else "")
+            info.addWidget(label(sub_id, 11, False, "#5b5f8f", True))
+            info.addWidget(label(rank, 13, False, "#666"))
+            info.addWidget(label(f"Level {1 + xp // 300}", 14, True, INK))
             hb.addLayout(info, 1)
             main_box.addWidget(head)
+
+            # Profile action buttons (Edit Profile & Reset Password)
+            prof_btns = QHBoxLayout()
+            prof_btns.setContentsMargins(0, 0, 0, 4)
+            prof_btns.setSpacing(6)
+            edit_btn = button(f"✏️ {self.t('Edit Profil')}", lambda: switch_tab("edit"), "primary", 12)
+            rst_pw_btn = button(f"🔑 {self.t('Reset Password')}", lambda: switch_tab("password"), "white", 12)
+            prof_btns.addWidget(edit_btn)
+            prof_btns.addWidget(rst_pw_btn)
+            prof_btns.addStretch(1)
+            main_box.addLayout(prof_btns)
 
             bar = QProgressBar()
             bar.setRange(0, 300)
             bar.setValue(fraction)
             bar.setTextVisible(False)
-            bar.setFixedHeight(22)
+            bar.setFixedHeight(20)
             bar.setStyleSheet(
                 "QProgressBar{background:#fff;border:3px solid #111;}"
                 "QProgressBar::chunk{background:#6cc4ff;}")
@@ -3798,7 +4533,7 @@ class NativeGame(QMainWindow):
             main_box.addWidget(label(
                 f"{fraction} / 300 " + self.t("XP menuju level berikutnya"),
                 12, False, "#666", True))
-            main_box.addWidget(label(self.t("Karakter"), 17, True, INK))
+            main_box.addWidget(label(self.t("Karakter"), 15, True, INK))
             char_row = QHBoxLayout()
             char_row.setContentsMargins(0, 0, 0, 0)
             char_row.setSpacing(2)
@@ -3812,29 +4547,30 @@ class NativeGame(QMainWindow):
                 avatar_view.set_avatar(value)
 
             for index in range(len(AVS)):
-                btn = AvatarButton(index, 46)
+                btn = AvatarButton(index, 44)
                 btn.setChecked(index == avatar)
                 btn.clicked.connect(lambda _, i=index: choose(i))
                 buttons.append(btn)
                 char_row.addWidget(btn)
             char_row.addStretch(1)
             main_box.addLayout(char_row)
-            main_box.addWidget(label(self.t("Lencana"), 17, True, INK))
+
+            main_box.addWidget(label(self.t("Lencana"), 15, True, INK))
             badges = QWidget()
             badge_flow = FlowLayout(badges, 0, 2, 2)
             for index in range(min(len(BIC), len(self.levels))):
                 acquired = self.is_done(index)
                 chip = QLabel(BIC[index])
-                chip.setFixedSize(34, 34)
+                chip.setFixedSize(32, 32)
                 chip.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                set_font(chip, 15)
+                set_font(chip, 14)
                 chip.setToolTip(self.levels[index].get("t", ""))
                 if acquired:
                     chip.setStyleSheet(
-                        "background:#6cc4ff;border:3px solid #111;border-radius:17px;")
+                        "background:#6cc4ff;border:3px solid #111;border-radius:16px;")
                 else:
                     chip.setStyleSheet(
-                        "background:#fff;border:3px solid #111;border-radius:17px;"
+                        "background:#fff;border:3px solid #111;border-radius:16px;"
                         "color:#aaa;")
                     from PySide6.QtWidgets import QGraphicsOpacityEffect
 
@@ -3843,17 +4579,20 @@ class NativeGame(QMainWindow):
                     chip.setGraphicsEffect(effect)
                 badge_flow.addWidget(chip)
             main_box.addWidget(badges)
-            main_box.addStretch(1)
 
-            side_box.addWidget(label(self.t("Total XP"), 11, False, INK,
-                                     align=Qt.AlignmentFlag.AlignHCenter))
-            total = label(f"★ {xp}", 25, True, INK, align=Qt.AlignmentFlag.AlignHCenter)
-            side_box.addWidget(total)
-            side_box.addWidget(spacer(6))
-            quote = label(self.t("Langkah kecil adalah bagian dari solusi besar."),
-                          12, False, INK, True, Qt.AlignmentFlag.AlignHCenter, True)
-            side_box.addWidget(quote)
-            side_box.addStretch(1)
+            # Save Game Export / Import controls
+            main_box.addWidget(hline())
+            save_row = QHBoxLayout()
+            save_row.setContentsMargins(0, 2, 0, 0)
+            save_row.setSpacing(6)
+            save_row.addWidget(label(f"💾 {self.t('Simpanan Game')}", 12, True, INK))
+            save_row.addStretch(1)
+            exp_btn = button(f"📤 {self.t('Export Save')}", lambda: self.export_save_game(), "white", 11)
+            imp_btn = button(f"📥 {self.t('Import Save')}", lambda: self.import_save_game(), "white", 11)
+            save_row.addWidget(exp_btn)
+            save_row.addWidget(imp_btn)
+            main_box.addLayout(save_row)
+            main_box.addStretch(1)
 
         rebuild()
         return root
@@ -3903,6 +4642,19 @@ class NativeGame(QMainWindow):
         lb.addWidget(id_btn)
         lb.addWidget(en_btn)
         box.addWidget(lang_row)
+
+        save_data_row = QFrame()
+        save_data_row.setObjectName("settingRow")
+        save_data_row.setStyleSheet("QFrame#settingRow{background:transparent;border:0;"
+                                    "border-bottom:2px solid #c9cbe0;}")
+        sb = QHBoxLayout(save_data_row)
+        sb.setContentsMargins(0, 8, 0, 8)
+        sb.setSpacing(6)
+        sb.addWidget(label(self.t("Simpanan Game"), 14, True, INK), 1)
+        sb.addWidget(button(f"📤 {self.t('Export Save')}", lambda: self.export_save_game(), "white", 12))
+        sb.addWidget(button(f"📥 {self.t('Import Save')}", lambda: self.import_save_game(), "white", 12))
+        box.addWidget(save_data_row)
+
         actions = QHBoxLayout()
         actions.setContentsMargins(0, 8, 0, 0)
         actions.setSpacing(6)
@@ -3931,36 +4683,7 @@ class NativeGame(QMainWindow):
             armed["on"] = False
             self.reset_progress()
             self.toast("Progres direset.", True)
-            desk = self.shell.desk
-            if desk is None or desk.mode != "desk":
-                return
-
-            def replace_content(key: str, content: QWidget) -> None:
-                win = desk.windows.get(key)
-                if win is None:
-                    return
-                old = win.content_scroll.takeWidget()
-                win.content = content
-                win.content_scroll.setWidget(content)
-                if old is not None:
-                    old.deleteLater()
-                win.fit_height()
-
-            replace_content("profil", self.profile_panel())
-            if self.in_case:
-                desk.set_status(
-                    self.case_status_text(),
-                    f"{int(self.state.get('xp', 0))} XP · {self.rank()}",
-                    f"← {self.t('Desktop')}", self.home)
-            else:
-                replace_content("kasus", self.level_list_panel())
-                desk.set_status(
-                    f"{self.t('Kasus')} "
-                    f"{self.done_count()}/{len(self.levels)}",
-                    f"{int(self.state.get('xp', 0))} XP · {self.rank()}",
-                    f"← {self.t('Layar Awal')}", self.landing,
-                    f"{self.t('Kasus selesai:')} "
-                    f"{self.done_count()}/{len(self.levels)}")
+            self._refresh_open_desk_after_state_change()
 
         reset_btn.clicked.connect(reset_click)
         return root
@@ -4137,7 +4860,7 @@ class NativeGame(QMainWindow):
         desk.add_window("edu", "buku-panduan", self.t("Buku Panduan"),
                         self.book_panel(level.get("ed", [])), 330, 90, 460)
         desk.add_window("profil", "profil", self.t("Profil"),
-                        self.profile_panel(), 156, 50, 520)
+                        self.profile_panel(), 156, 40, 560)
         desk.add_window("set", "pengaturan", self.t("Pengaturan"),
                         self.settings_panel(), 190, 70, 470)
 
